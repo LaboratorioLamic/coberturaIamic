@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#001f3f">
+    <title>Lamic Exames</title>
+    <link rel="icon" href="https://i.imgur.com/CMQ2kVH.png" type="image/png">
+    <link rel="apple-touch-icon" href="https://i.imgur.com/CMQ2kVH.png">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        body{font-family:'Roboto Slab','Inter','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f4f7fa;color:#333;margin:0;padding:20px;display:flex;flex-direction:column;align-items:center}
+        h1{color:#2c3e50;margin-bottom:10px;font-size:clamp(0.5rem,3vw,1rem);font-weight:normal}
+        .search-container{position:relative;width:100%;max-width:600px;margin-bottom:20px;display:none}
+        #searchInput{width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:16px;box-shadow:0 2px 4px rgba(0,0,0,0.1)}
+        .autocomplete-list{position:absolute;width:100%;max-height:200px;overflow-y:auto;background:#fff;border:1px solid #ddd;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1);z-index:10;display:none}
+        .autocomplete-item{padding:10px;cursor:pointer}
+        .autocomplete-item:hover{background:#f0f0f0}
+        .add-table-btn{position:absolute;right:-50px;top:50%;transform:translateY(-50%);background:#1a2b5f;color:#fff;border:none;width:40px;height:40px;border-radius:50%;font-size:18px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.2);display:flex;align-items:center;justify-content:center}
+        .add-table-btn:hover{background:#2c3e50}
+        .table-dropdown{position:absolute;right:-10px;top:50px;background:#fff;border:1px solid #ddd;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);max-height:300px;overflow-y:auto;z-index:100;width:220px;display:none}
+        .table-item{padding:12px;cursor:pointer;border-bottom:1px solid #eee;font-size:14px}
+        .table-item:hover{background:#f0f8ff}
+        .table-item:last-child{border-bottom:none}
+        .download-icon{position:absolute;right:15px;top:50%;transform:translateY(-50%);cursor:pointer;color:#1a2b5f;font-size:18px;z-index:5}
+        .download-icon:hover{color:#2c3e50}
+        .loading-download{position:absolute;right:15px;top:30%;transform:translateY(-50%);color:#1a2b5f;font-size:18px;z-index:5;display:none;animation:spin 1s linear infinite}
+        table{width:100%;max-width:1800px;border-collapse:collapse;margin-top:20px;background:#fff;box-shadow:0 4px 8px rgba(0,0,0,0.1);border-radius:8px;overflow:hidden;display:none}
+        th,td{padding:12px;text-align:left;border-bottom:1px solid #ddd;word-wrap:break-word}
+        th{background:#1a2b5f;color:#fff}
+        .proposta-input{width:80px;padding:5px;border:1px solid #ddd;border-radius:4px;font-size:14px}
+        .loading-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,0.8);display:flex;justify-content:center;align-items:center;z-index:1000}
+        .loading-icon{font-size:64px;color:#2c3e50;animation:spin 1s linear infinite}
+        @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+        .logo-container{position:absolute;top:20px;left:20px;z-index:10;display:none}
+        .logo-container img{width:200px;height:auto}
+        .delete-icon{cursor:pointer;color:#ff0000;font-size:18px}
+        .delete-icon:hover{color:#cc0000}
+        .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);justify-content:center;align-items:center;z-index:2000}
+        .modal-content{background:#fff;padding:20px;border-radius:8px;width:90%;max-width:250px;box-shadow:0 4px 12px rgba(0,0,0,0.2);animation:fadeIn .3s ease-in-out;font-family:'Inter',sans-serif}
+        .modal-content.error{animation:shake .5s ease-in-out;border:2px solid #dc3545}
+        .modal-content-presentation{background:#e6f0fa;padding:20px;border:2px solid #1a2b5f;border-radius:12px;width:90%;max-width:700px;box-shadow:0 6px 16px rgba(0,0,0,0.15);animation:fadeIn .3s ease-in-out;font-family:'Inter',sans-serif}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-10px)}75%{transform:translateX(10px)}}
+        .modal-content h2{font-size:clamp(1.2em,2.5vw,1.5em);font-weight:600;color:#1a2b49;margin-bottom:15px;text-align:center}
+        .modal-content-presentation h2{font-size:clamp(1.4em,2.5vw,1.8em);font-weight:700;color:#1a2b5f;margin-bottom:20px;text-align:center}
+        .modal-content input{width:94%;padding:10px;border:1px solid #ccc;border-radius:4px;font-size:clamp(0.9em,2vw,1em);margin-bottom:15px}
+        .modal-content-presentation textarea{width:94%;height:350px;padding:12px;border:1px solid #ccc;border-radius:8px;font-size:clamp(0.9em,2vw,1em);margin-bottom:20px;font-family:'Inter',sans-serif;resize:vertical;background:#fff;box-shadow:inset 0 1px 3px rgba(0,0,0,0.1)}
+        .modal-content button{background:#1a2b49;color:#fff;padding:12px;border:none;border-radius:6px;cursor:pointer;font-size:clamp(0.9em,2vw,1em);font-weight:600;width:100%;transition:background .3s}
+        .modal-content-presentation button{padding:12px;border:none;border-radius:6px;cursor:pointer;font-size:clamp(0.9em,2vw,1em);font-weight:600;width:48%;margin:1%;transition:background .3s}
+        .modal-content button:hover{background:#2c4373}
+        .modal-content-presentation button.cancel{background:#c01425;color:#fff}
+        .modal-content-presentation button.cancel:hover{background:#ff374b}
+        .modal-content-presentation button.download{background:#1a2b5f;color:#fff}
+        .modal-content-presentation button.download:hover{background:#1068c0}
+        .warning-message{display:none;background:linear-gradient(135deg,#c01425,#ff374b);color:#fff;padding:15px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.2);font-size:clamp(1em,2.5vw,1.2em);font-weight:600;position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:1000;animation:warningPop .5s}
+        @keyframes warningPop{0%{transform:translateX(-50%) scale(.8);opacity:0}50%{transform:translateX(-50%) scale(1.1);opacity:.8}100%{transform:translateX(-50%) scale(1);opacity:1}}
+        .reset-btn{margin-top:20px;padding:12px 24px;background:#f39c12;color:#fff;border:none;border-radius:8px;font-size:16px;font-weight:600;cursor:pointer;box-shadow:0 4px 8px rgba(0,0,0,0.2);transition:all .3s}
+        .reset-btn:hover{background:#e67e22;transform:translateY(-2px)}
+        @media (max-width:768px){
+            table{font-size:14px}
+            .loading-icon{font-size:48px}
+            .logo-container{position:relative;left:auto;top:auto;display:flex;justify-content:center;margin-bottom:20px}
+            .logo-container img{width:200px}
+            .modal-content-presentation{max-width:90%}
+            .modal-content-presentation textarea{height:250px}
+            .add-table-btn{right:10px;top:50px}
+            .table-dropdown{right:10px;top:100px;width:180px}
+        }
+    </style>
+</head>
+<body>
+    <div class="warning-message" id="warning-message"><span id="warning-text"></span></div>
+
+    <!-- MODAL SENHA -->
+    <div class="modal" id="password-modal">
+        <div class="modal-content" id="modal-content">
+            <h2>Cobertura de Exames</h2>
+            <div class="lockout-message" id="lockout-message">Aguarde para tentar novamente</div>
+            <div class="progress-bar-container" id="progress-bar-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            <input type="password" id="password-input" placeholder="Digite a senha">
+            <button id="password-submit">Entrar</button>
+        </div>
+    </div>
+
+    <!-- MODAL APRESENTAÇÃO -->
+    <div class="modal" id="presentation-modal">
+        <div class="modal-content-presentation">
+            <h2>Editar Texto de Apresentação</h2>
+            <textarea id="presentationText"></textarea>
+            <button class="cancel" id="cancel-presentation">Cancelar</button><button class="download" id="download-presentation">Baixar</button>
+        </div>
+    </div>
+
+    <div class="logo-container"><img src="https://i.imgur.com/qVfGMyc.png" alt="Logo" id="mainLogo"></div>
+    <h1>Lista de Exames</h1>
+
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Busque e adicione exames...">
+        <button class="add-table-btn" id="addTableBtn"><i class="fas fa-plus"></i></button>
+        <div class="table-dropdown" id="tableDropdown"></div>
+        <div class="autocomplete-list" id="autocompleteList"></div>
+        <i class="fas fa-download download-icon" id="downloadIcon" style="display:none;"></i>
+        <i class="fas fa-spinner loading-download" id="loadingDownloadIcon"></i>
+    </div>
+
+    <div class="loading-overlay" id="loadingOverlay"><i class="fas fa-spinner loading-icon"></i></div>
+
+    <table id="comparisonTable">
+        <thead id="tableHeader"></thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+
+    <button class="reset-btn" id="resetBtn">Resetar dados</button>
+
+    <script>
+        /* ====================== CONFIGURAÇÃO ====================== */
+        const tablesUrl = 'https://script.google.com/macros/s/AKfycbwZjrx1T7O386TcBWMz0TwPd1L2JCvbaP0GMMQEDqn1-RUr-uZ84O1t1W-Vpplkq1F-/exec';
+        const passwordBinId = '68d7e57bd0ea881f408cf33b';
+        const masterKey = '$2a$10$2elKW8TT6o.K3V176efqwu7kOfD1PnS3D/F0s4Tczc3MYmaU.N1bi';
+
+        /* ====================== VARIÁVEIS GLOBAIS ====================== */
+        let tableData = {}, selectedExams = {}, selectedTables = [];
+        let loginAttempts = 0, isLocked = false;
+
+        /* ====================== TEXTO PADRÃO ====================== */
+        const defaultPresentationText = `Ao (Nome fantasia e CNPJ)
+Prezado(a) Senhor(a),
+
+É com grande satisfação que encaminhamos para apreciação de V.Sa, a nossa proposta orçamentária, para realização de exames laboratoriais de nossa especialidade.
+
+Salientamos que todos os exames aqui apresentados estão disponíveis para imediata realização.
+
+Ademais, ressaltamos que a estrutura do Núcleo Técnico Operacional – NTO do Laboratório LAMIC está apta a realizar uma gama de aproximadamente 1.000 (mil) diferentes exames, e desta forma, caso vossa senhoria demande a realização de algum(ns) exame(s) que não esteja(m) detalhado(s) na presente proposta, encontramo-nos a disposição para apresentar proposta específica para o(s) mesmo(s).
+
+A recepção dos materiais para análise obedecerá aos seguintes horários:
+
+Juazeiro do Norte (NTO – Centro) – ÁREA TÉCNICA 
+• Segunda-feira à Sexta-feira: 06h00 às 17h00
+• Sábado: 06h00 às 12h00
+
+Entrega dos Resultados:
+
+Os prazos de entrega dos resultados dos exames estão evidenciados ao lado da descrição de cada exame na relação anexa à presente proposta e levam em consideração o horário da entrada do material coletado na área técnica do Laboratório LAMIC.`;
+
+        const closingText = `Encontramo-nos à disposição para esclarecer eventuais dúvidas julgadas necessárias acerca do presente orçamento.
+
+Atenciosamente, Dr. Leonardo Bezerra
+Laboratório LAMIC`;
+
+        /* ====================== FUNÇÕES AUXILIARES ====================== */
+        function showWarning(msg){
+            const el=document.getElementById('warning-message');
+            document.getElementById('warning-text').textContent=msg;
+            el.style.display='block';
+            setTimeout(()=>el.style.display='none',3000);
+        }
+        function normalizeDecimalInput(v){return v.replace(',','.').replace(/[^0-9.]/g,'');}
+
+        /* ====================== MODAIS ====================== */
+        function showModal(){
+            document.getElementById('password-modal').style.display='flex';
+            document.getElementById('password-input').value='';
+            document.getElementById('modal-content').classList.remove('error');
+            document.getElementById('lockout-message').style.display='none';
+            document.getElementById('progress-bar-container').style.display='none';
+        }
+        function hideModal(){
+            document.getElementById('password-modal').style.display='none';
+            document.querySelector('.logo-container').style.display='block';
+            document.querySelector('.search-container').style.display='block';
+            document.querySelector('table').style.display='table';
+            document.getElementById('resetBtn').style.display='block';
+        }
+        function showPresentationModal(){
+            document.getElementById('presentation-modal').style.display='flex';
+            document.getElementById('presentationText').value=defaultPresentationText;
+        }
+        function hidePresentationModal(){document.getElementById('presentation-modal').style.display='none';}
+
+        /* ====================== SENHA ====================== */
+        async function validatePassword(pwd){
+            try{
+                const r=await fetch(`https://api.jsonbin.io/v3/b/${passwordBinId}/latest`,{headers:{'X-Master-Key':masterKey}});
+                if(!r.ok) throw new Error(r.status);
+                const j=await r.json();
+                return j.record.password===pwd;
+            }catch(e){console.error(e);showWarning('Erro ao validar senha');return false;}
+        }
+        function startLockout(){
+            isLocked=true;loginAttempts=0;
+            const msg=document.getElementById('lockout-message');
+            const bar=document.getElementById('progress-bar');
+            const cont=document.getElementById('progress-bar-container');
+            msg.style.display='block';cont.style.display='block';
+            bar.style.width='0%';bar.style.transition='width 10s linear';
+            setTimeout(()=>bar.style.width='100%',0);
+            setTimeout(()=>{isLocked=false;msg.style.display='none';cont.style.display='none';
+                bar.style.transition='none';bar.style.width='0%';
+                document.getElementById('password-submit').disabled=false;
+            },10000);
+        }
+        document.getElementById('password-submit').onclick=async()=>{
+            if(isLocked) return;
+            const pwd=document.getElementById('password-input').value.trim();
+            if(!pwd) return showWarning('Digite a senha');
+            const ok=await validatePassword(pwd);
+            if(!ok){
+                loginAttempts++;
+                document.getElementById('modal-content').classList.add('error');
+                showWarning('Senha incorreta');
+                setTimeout(()=>document.getElementById('modal-content').classList.remove('error'),500);
+                if(loginAttempts>=5) startLockout();
+                return;
+            }
+            hideModal();await loadData();
+        };
+
+        /* ====================== CARREGAMENTO DE DADOS ====================== */
+        async function loadData(){
+            document.getElementById('loadingOverlay').style.display='flex';
+
+            // Apenas a planilha de tabelas
+            let rows=[];
+            try{
+                const r=await fetch(tablesUrl);
+                if(!r.ok) throw new Error('HTTP '+r.status);
+                const json=await r.json();
+                if(!Array.isArray(json)) throw new Error('Formato inválido');
+                rows=json;
+            }catch(e){
+                console.error('Erro carregando tabelas',e);
+                showWarning('Não foi possível carregar as tabelas.');
+            }
+
+            tableData={};
+            const tableNames=new Set();
+            rows.forEach((row,i)=>{
+                if(!row||!row.Tabela||!row.Exame||row.Valor==null) return;
+                const tab=String(row.Tabela).trim();
+                const ex=String(row.Exame).trim();
+                const val=parseFloat(row.Valor);
+                const mat=row.Material?String(row.Material).trim():'-';
+                const pra=row.Prazo?String(row.Prazo).trim():'-';
+                if(!tab||!ex||isNaN(val)) return;
+                if(!tableData[tab]) tableData[tab]={};
+                tableData[tab][ex]={valor:val,material:mat,prazo:pra};
+                tableNames.add(tab);
+            });
+
+            const saved=localStorage.getItem('lamicData');
+            if(saved){
+                const p=JSON.parse(saved);
+                selectedExams=p.selectedExams||{};
+                selectedTables=p.selectedTables||[];
+            }
+
+            renderTableHeader();
+            renderTable(Object.keys(selectedExams));
+            populateTableDropdown([...tableNames]);
+
+            document.getElementById('loadingOverlay').style.display='none';
+            if(Object.keys(selectedExams).length) document.getElementById('downloadIcon').style.display='block';
+        }
+
+        /* ====================== DROPDOWN DE TABELAS ====================== */
+        function populateTableDropdown(tables){
+            const dd=document.getElementById('tableDropdown');dd.innerHTML='';
+            if(!tables.length){
+                const el=document.createElement('div');
+                el.className='table-item';el.textContent='Nenhuma tabela disponível';
+                el.style.color='#999';el.style.cursor='default';
+                dd.appendChild(el);return;
+            }
+            tables.forEach(t=>{
+                const el=document.createElement('div');
+                el.className='table-item';el.textContent=t;
+                el.onclick=()=>{
+                    if(!selectedTables.includes(t)){
+                        selectedTables.push(t);
+                        saveToLocalStorage();
+                        renderTableHeader();renderTable(Object.keys(selectedExams));
+                    }
+                    dd.style.display='none';
+                };
+                dd.appendChild(el);
+            });
+        }
+
+        /* ====================== LOCALSTORAGE ====================== */
+        function saveToLocalStorage(){
+            localStorage.setItem('lamicData',JSON.stringify({selectedExams,selectedTables}));
+        }
+
+        /* ====================== RENDER TABELA ====================== */
+        function renderTableHeader(){
+            const h=document.getElementById('tableHeader');
+            let html=`<tr><th>Exame</th><th>Material Biológico</th><th>Prazo</th><th>Concorrente</th>`;
+            selectedTables.forEach(t=>html+=`<th>${t}</th>`);
+            html+=`<th></th></tr>`;
+            h.innerHTML=html;
+        }
+
+        function renderTable(exams){
+            const body=document.getElementById('tableBody');body.innerHTML='';
+            exams.forEach(ex=>{
+                const d=selectedExams[ex];
+                const tr=document.createElement('tr');
+                let cells=`<td>${ex}</td>
+                           <td>${d.material||'N/A'}</td>
+                           <td>${d.prazo||'N/A'}</td>
+                           <td><input type="text" class="proposta-input" value="${d.proposta||''}" data-exame="${ex}"></td>`;
+                selectedTables.forEach(t=>{
+                    const v=tableData[t][ex]?.valor;
+                    cells+=`<td>${v? 'R$ '+v.toFixed(2): '—'}</td>`;
+                });
+                cells+=`<td><i class="fas fa-trash delete-icon" data-exame="${ex}"></i></td>`;
+                tr.innerHTML=cells;body.appendChild(tr);
+            });
+
+            // eventos
+            document.querySelectorAll('.proposta-input').forEach(i=>{
+                i.onblur=e=>{
+                    const ex=e.target.dataset.exame;
+                    selectedExams[ex].proposta=normalizeDecimalInput(e.target.value);
+                    saveToLocalStorage();
+                };
+                i.onkeydown=e=>{if(e.key==='Enter') i.blur();}
+            });
+            document.querySelectorAll('.delete-icon').forEach(i=>{
+                i.onclick=e=>{
+                    const ex=e.target.dataset.exame;
+                    delete selectedExams[ex];
+                    saveToLocalStorage();
+                    renderTable(Object.keys(selectedExams));
+                    if(!Object.keys(selectedExams).length) document.getElementById('downloadIcon').style.display='none';
+                };
+            });
+        }
+
+        /* ====================== EVENTOS GERAIS ====================== */
+        document.getElementById('addTableBtn').onclick=()=>{
+            const dd=document.getElementById('tableDropdown');
+            dd.style.display=(dd.style.display==='block')?'none':'block';
+        };
+        document.getElementById('searchInput').oninput=e=>showAutocomplete(e.target.value);
+        document.addEventListener('click',e=>{
+            if(!e.target.closest('.search-container')){
+                document.getElementById('autocompleteList').style.display='none';
+                document.getElementById('tableDropdown').style.display='none';
+            }
+        });
+
+        /* ====================== AUTOCOMPLETE ====================== */
+        function showAutocomplete(q){
+            const list=document.getElementById('autocompleteList');list.innerHTML='';
+            if(q.length<2){list.style.display='none';return;}
+            const allExams=[];
+            Object.values(tableData).forEach(tab=>Object.keys(tab).forEach(ex=>allExams.push(ex)));
+            const matches=[...new Set(allExams)].filter(ex=>ex.toLowerCase().includes(q.toLowerCase()));
+            if(!matches.length){list.style.display='none';return;}
+            matches.forEach(ex=>{
+                const div=document.createElement('div');div.className='autocomplete-item';div.textContent=ex;
+                div.onclick=()=>{
+                    if(!selectedExams[ex]){
+                        // pega material/prazo da primeira tabela que possuir o exame
+                        let material='-',prazo='-';
+                        for(const tab of Object.keys(tableData)){
+                            if(tableData[tab][ex]){
+                                material=tableData[tab][ex].material;
+                                prazo=tableData[tab][ex].prazo;
+                                break;
+                            }
+                        }
+                        selectedExams[ex]={material,prazo,proposta:''};
+                        saveToLocalStorage();renderTable(Object.keys(selectedExams));
+                        document.getElementById('downloadIcon').style.display='block';
+                    }
+                    document.getElementById('searchInput').value='';
+                    list.style.display='none';
+                };
+                list.appendChild(div);
+            });
+            list.style.display='block';
+        }
+
+        /* ====================== PDF ====================== */
+        function getFormattedDate(){
+            const meses=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+            const d=new Date();
+            return `Juazeiro do Norte/CE, ${String(d.getDate()).padStart(2,'0')} de ${meses[d.getMonth()]} de ${d.getFullYear()}.`;
+        }
+        async function downloadPDF(){
+            document.getElementById('downloadIcon').style.display='none';
+            document.getElementById('loadingDownloadIcon').style.display='block';
+            const {jsPDF}=window.jspdf;const doc=new jsPDF('p','mm','a4');
+            const logo=document.getElementById('mainLogo').src;let y=20;
+
+            try{
+                const img=new Image();img.crossOrigin='anonymous';img.src=logo;
+                await new Promise((res,rej)=>{img.onload=res;img.onerror=rej;});
+                const ratio=img.naturalHeight/img.naturalWidth;
+                const w=60,h=w*ratio;
+                const canvas=document.createElement('canvas');
+                canvas.width=img.naturalWidth;canvas.height=img.naturalHeight;
+                canvas.getContext('2d').drawImage(img,0,0);
+                const data=canvas.toDataURL('image/png');
+                doc.addImage(data,'PNG',(210-w)/2,10,w,h);
+                y=10+h+10;
+            }catch(e){console.warn('Logo error',e);}
+
+            doc.setTextColor(44,62,80);doc.setFont('helvetica','bold');doc.setFontSize(18);
+            doc.text('Cobertura de Valores',105,y,{align:'center'});
+            doc.setFont('helvetica','normal');doc.setFontSize(12);
+            doc.text(getFormattedDate(),105,y+10,{align:'center'});
+
+            const txt=document.getElementById('presentationText').value||defaultPresentationText;
+            const lines=doc.splitTextToSize(txt,180);
+            doc.text(lines,15,y+20);
+            const tableY=y+20+lines.length*5+10;
+
+            const body=Object.keys(selectedExams).map(ex=>{
+                const d=selectedExams[ex];
+                const p=parseFloat(normalizeDecimalInput(d.proposta))||0;
+                const row=[ex,d.material||'N/A',d.prazo||'N/A',p?`R$ ${p.toFixed(2)}`:'N/A'];
+                selectedTables.forEach(t=>{
+                    const v=tableData[t][ex]?.valor;
+                    row.push(v?`R$ ${v.toFixed(2)}`:'—');
+                });
+                return row;
+            });
+
+            const head=[['Exame','Material Biológico','Prazo','Concorrente']];
+            selectedTables.forEach(t=>head[0].push(t));
+
+            const colWidthProposta=35;
+            const colWidths={0:50,1:30,2:30,3:colWidthProposta};
+            for(let i=4;i<head[0].length;i++) colWidths[i]=colWidthProposta;
+
+            doc.autoTable({
+                startY:tableY,head:head,body:body,theme:'striped',
+                styles:{fontSize:9,cellPadding:5,lineHeight:1.3,overflow:'linebreak',valign:'middle',halign:'center'},
+                headStyles:{fillColor:[26,43,95],textColor:[255,255,255],fontStyle:'bold',fontSize:10,halign:'center'},
+                columnStyles:colWidths,margin:{left:5,right:5}
+            });
+
+            const finalY=doc.lastAutoTable.finalY+10;
+            const closing=doc.splitTextToSize(closingText,180);
+            doc.setFontSize(11);
+            doc.text(closing,15,finalY);
+
+            doc.save('LAMIC - Cobertura de Valores.pdf');
+
+            document.getElementById('loadingDownloadIcon').style.display='none';
+            document.getElementById('downloadIcon').style.display='block';
+        }
+
+        /* ====================== BOTÕES PDF ====================== */
+        document.getElementById('downloadIcon').onclick=()=>{
+            if(!Object.keys(selectedExams).length) return showWarning('Selecione ao menos um exame');
+            showPresentationModal();
+        };
+        document.getElementById('cancel-presentation').onclick=()=>{hidePresentationModal();document.getElementById('downloadIcon').style.display='block';};
+        document.getElementById('download-presentation').onclick=()=>{hidePresentationModal();downloadPDF();};
+
+        /* ====================== RESET ====================== */
+        document.getElementById('resetBtn').onclick=()=>{
+            if(confirm('Resetar tudo?')){
+                localStorage.removeItem('lamicData');
+                selectedExams={};selectedTables=[];
+                renderTableHeader();renderTable([]);document.getElementById('downloadIcon').style.display='none';
+            }
+        };
+
+        /* ====================== INICIALIZAÇÃO ====================== */
+        window.addEventListener('load',showModal);
+
+        /* ====================== BLOQUEIO DE ATALHOS ====================== */
+        document.onkeydown=e=>{
+            if(e.keyCode===123||(e.ctrlKey&&e.shiftKey&&[73,74,67].includes(e.keyCode))||(e.ctrlKey&&[85,83].includes(e.keyCode))){
+                e.preventDefault();return false;
+            }
+        };
+        document.addEventListener('contextmenu',e=>e.preventDefault());
+    </script>
+</body>
+</html>
