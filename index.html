@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
+    </meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#001f3f">
     <title>Lamic Exames</title>
@@ -24,6 +24,7 @@
             --border: #dee2e6;
             --shadow: 0 4px 12px rgba(0,0,0,0.1);
             --radius: 12px;
+            --gold: #f39c12;
         }
 
         body {
@@ -177,7 +178,7 @@
             color: var(--primary);
             font-size: 20px;
             z-index: 5;
-            transitionlığa: all 0.2s;
+            transition: all 0.2s;
         }
 
         .download-icon:hover {
@@ -257,6 +258,49 @@
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 2px rgba(26, 43, 95, 0.15);
+        }
+
+        .table-value-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .table-value-input {
+            width: 80px;
+            padding: 6px 24px 6px 8px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            text-align: right;
+            transition: all 0.2s;
+        }
+
+        .table-value-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(26, 43, 95, 0.15);
+        }
+
+        .reset-table-icon {
+            position: absolute;
+            right: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gold);
+            font-size: 15px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s;
+            pointer-events: none;
+        }
+
+        .table-value-wrapper.edited .reset-table-icon {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .reset-table-icon:hover {
+            color: #e67e22;
         }
 
         .delete-icon, .delete-table-icon {
@@ -444,7 +488,7 @@
             top: 20px;
             left: 50%;
             transform: translateX(-50%);
-            z-index: 3000; /* Acima do modal (z-index 2000) */
+            z-index: 3000;
             max-width: 90%;
             text-align: center;
             animation: warningPop 0.5s;
@@ -654,6 +698,7 @@
         /* ====================== VARIÁVEIS GLOBAIS ====================== */
         let tableData = {}, selectedExams = {}, selectedTables = [];
         let loginAttempts = 0, isLocked = false;
+        let editedTableValues = {}; // { tableName: { exame: { original: X, current: Y } } }
 
         /* ====================== TEXTO PADRÃO ====================== */
         const defaultPresentationText = `Ao (Nome fantasia e CNPJ)
@@ -693,6 +738,21 @@ Laboratório LAMIC`;
 
         function normalizeDecimalInput(v){
             return v.replace(',','.').replace(/[^0-9.]/g,'');
+        }
+
+        function getEditedValue(table, exam) {
+            return editedTableValues[table]?.[exam]?.current ?? tableData[table][exam]?.valor;
+        }
+
+        function getOriginalValue(table, exam) {
+            return tableData[table][exam]?.valor;
+        }
+
+        function isEdited(table, exam) {
+            if (!editedTableValues[table]?.[exam]) return false;
+            const orig = getOriginalValue(table, exam);
+            const curr = editedTableValues[table][exam].current;
+            return orig != null && parseFloat(curr) !== orig;
         }
 
         /* ====================== MODAIS ====================== */
@@ -804,6 +864,7 @@ Laboratório LAMIC`;
                 const p = JSON.parse(saved);
                 selectedExams = p.selectedExams || {};
                 selectedTables = p.selectedTables || [];
+                editedTableValues = p.editedTableValues || {};
             }
 
             renderTableHeader();
@@ -840,7 +901,7 @@ Laboratório LAMIC`;
 
         /* ====================== LOCALSTORAGE ====================== */
         function saveToLocalStorage(){
-            localStorage.setItem('lamicData', JSON.stringify({selectedExams, selectedTables}));
+            localStorage.setItem('lamicData', JSON.stringify({selectedExams, selectedTables, editedTableValues}));
         }
 
         /* ====================== RENDER TABELA ====================== */
@@ -863,6 +924,7 @@ Laboratório LAMIC`;
                     const tableName = e.target.dataset.table;
                     if(confirm(`Remover a tabela "${tableName}"?`)){
                         selectedTables = selectedTables.filter(t => t !== tableName);
+                        delete editedTableValues[tableName];
                         saveToLocalStorage();
                         renderTableHeader();
                         renderTable(Object.keys(selectedExams));
@@ -884,34 +946,97 @@ Laboratório LAMIC`;
                 const propostaValor = parseFloat(normalizeDecimalInput(d.proposta)) || null;
 
                 selectedTables.forEach(t => {
-                    const v = tableData[t][ex]?.valor;
-                    const cellValue = v ? v.toFixed(2) : '—';
+                    const originalVal = tableData[t][ex]?.valor;
+                    const displayVal = getEditedValue(t, ex);
+                    const cellValue = displayVal != null ? displayVal.toFixed(2) : '—';
+
                     let cellClass = '';
-                    if (v !== undefined && propostaValor !== null) {
-                        if (v > propostaValor) cellClass = 'cell-higher';
-                        else if (v === propostaValor) cellClass = 'cell-equal';
-                        else if (v < propostaValor) cellClass = 'cell-lower';
+                    if (originalVal !== undefined && propostaValor !== null) {
+                        const compVal = displayVal != null ? displayVal : originalVal;
+                        if (compVal > propostaValor) cellClass = 'cell-higher';
+                        else if (compVal === propostaValor) cellClass = 'cell-equal';
+                        else if (compVal < propostaValor) cellClass = 'cell-lower';
                     }
-                    cells += `<td class="${cellClass}">R$ ${cellValue}</td>`;
+
+                    const wrapperClass = isEdited(t, ex) ? 'edited' : '';
+                    cells += `<td class="${cellClass}">
+                        <div class="table-value-wrapper ${wrapperClass}">
+                            <input type="text" class="table-value-input" value="${displayVal != null ? displayVal.toFixed(2) : ''}" data-table="${t}" data-exame="${ex}">
+                            <i class="fas fa-rotate-left reset-table-icon" data-table="${t}" data-exame="${ex}"></i>
+                        </div>
+                    </td>`;
                 });
                 cells += `<td><i class="fas fa-trash delete-icon" data-exame="${ex}"></i></td>`;
                 tr.innerHTML = cells; body.appendChild(tr);
             });
 
+            // Proposta input
             document.querySelectorAll('.proposta-input').forEach(i => {
                 i.onblur = e => {
                     const ex = e.target.dataset.exame;
                     selectedExams[ex].proposta = normalizeDecimalInput(e.target.value);
                     saveToLocalStorage();
-                    renderTable(Object.keys(selectedExams)); // Re-renderiza para atualizar cores
+                    renderTable(Object.keys(selectedExams));
                 };
                 i.onkeydown = e => { if(e.key === 'Enter') i.blur(); };
             });
 
+            // Table value input
+            document.querySelectorAll('.table-value-input').forEach(input => {
+                const table = input.dataset.table;
+                const exam = input.dataset.exame;
+
+                input.oninput = () => {
+                    const val = normalizeDecimalInput(input.value);
+                    input.value = val ? parseFloat(val).toFixed(2) : '';
+                };
+
+                input.onblur = () => {
+                    const raw = normalizeDecimalInput(input.value);
+                    const num = raw ? parseFloat(raw) : null;
+                    if (num === null) {
+                        input.value = '';
+                        if (editedTableValues[table]?.[exam]) {
+                            delete editedTableValues[table][exam];
+                            if (Object.keys(editedTableValues[table]).length === 0) delete editedTableValues[table];
+                        }
+                    } else {
+                        if (!editedTableValues[table]) editedTableValues[table] = {};
+                        if (!editedTableValues[table][exam]) {
+                            editedTableValues[table][exam] = { original: getOriginalValue(table, exam) };
+                        }
+                        editedTableValues[table][exam].current = num;
+                    }
+                    saveToLocalStorage();
+                    renderTable(Object.keys(selectedExams));
+                };
+
+                input.onkeydown = e => { if(e.key === 'Enter') input.blur(); };
+            });
+
+            // Reset icon
+            document.querySelectorAll('.reset-table-icon').forEach(icon => {
+                icon.onclick = e => {
+                    e.stopPropagation();
+                    const table = icon.dataset.table;
+                    const exam = icon.dataset.exame;
+                    if (editedTableValues[table]?.[exam]) {
+                        delete editedTableValues[table][exam];
+                        if (Object.keys(editedTableValues[table]).length === 0) delete editedTableValues[table];
+                        saveToLocalStorage();
+                        renderTable(Object.keys(selectedExams));
+                    }
+                };
+            });
+
+            // Delete exam
             document.querySelectorAll('.delete-icon').forEach(i => {
                 i.onclick = e => {
                     const ex = e.target.dataset.exame;
                     delete selectedExams[ex];
+                    selectedTables.forEach(t => {
+                        if (editedTableValues[t]?.[ex]) delete editedTableValues[t][ex];
+                    });
                     saveToLocalStorage();
                     renderTable(Object.keys(selectedExams));
                     if(!Object.keys(selectedExams).length) document.getElementById('downloadIcon').style.display = 'none';
@@ -1007,8 +1132,8 @@ Laboratório LAMIC`;
                 const p = parseFloat(normalizeDecimalInput(d.proposta)) || 0;
                 const row = [ex, d.material || 'N/A', d.prazo || 'N/A', p ? `R$ ${p.toFixed(2)}` : 'N/A'];
                 selectedTables.forEach(t => {
-                    const v = tableData[t][ex]?.valor;
-                    row.push(v ? `R$ ${v.toFixed(2)}` : '—');
+                    const v = getEditedValue(t, ex);
+                    row.push(v != null ? `R$ ${v.toFixed(2)}` : '—');
                 });
                 return row;
             });
@@ -1020,46 +1145,42 @@ Laboratório LAMIC`;
             const colWidths = {0:50,1:30,2:30,3:colWidthProposta};
             for(let i=4; i<head[0].length; i++) colWidths[i] = colWidthProposta;
 
-            // Função para definir cor do texto com base na comparação
             const getTextColor = (tableVal, propVal) => {
-                if (tableVal === undefined || propVal === null) return [0,0,0]; // preto
-                if (tableVal > propVal) return [198, 40, 40]; // vermelho
-                if (tableVal === propVal) return [249, 168, 37]; // amarelo/laranja
-                return [46, 125, 50]; // verde
+                if (tableVal === undefined || propVal === null) return [0,0,0];
+                if (tableVal > propVal) return [198, 40, 40];
+                if (tableVal === propVal) return [249, 168, 37];
+                return [46, 125, 50];
             };
 
             doc.autoTable({
-    startY: tableY, head: head, body: body, theme: 'striped',
-    styles: {fontSize:9, cellPadding:5, lineHeight:1.3, overflow:'linebreak', valign:'middle', halign:'center'},
-    headStyles: {fillColor:[26,43,95], textColor:[255,255,255], fontStyle:'bold', fontSize:10, halign:'center'},
-    columnStyles: colWidths,
-    margin: {left:5, right:5},
-    didParseCell: function(data) {
-        // Aplica cor do texto com base na comparação
-        if (data.section === 'body' && data.column.index >= 4) {
-            const ex = data.row.raw[0];
-            const propVal = parseFloat(normalizeDecimalInput(selectedExams[ex]?.proposta)) || null;
-            const tableVal = tableData[selectedTables[data.column.index - 4]]?.[ex]?.valor;
-            const color = getTextColor(tableVal, propVal);
-            data.cell.styles.textColor = color;
-        }
+                startY: tableY, head: head, body: body, theme: 'striped',
+                styles: {fontSize:9, cellPadding:5, lineHeight:1.3, overflow:'linebreak', valign:'middle', halign:'center'},
+                headStyles: {fillColor:[26,43,95], textColor:[255,255,255], fontStyle:'bold', fontSize:10, halign:'center'},
+                columnStyles: colWidths,
+                margin: {left:5, right:5},
+                didParseCell: function(data) {
+                    if (data.section === 'body' && data.column.index >= 4) {
+                        const ex = data.row.raw[0];
+                        const propVal = parseFloat(normalizeDecimalInput(selectedExams[ex]?.proposta)) || null;
+                        const tableVal = getEditedValue(selectedTables[data.column.index - 4], ex);
+                        const color = getTextColor(tableVal, propVal);
+                        data.cell.styles.textColor = color;
+                    }
 
-        // Impede quebra de linha em valores monetários (R$ 10,00)
-        if (data.cell.text && data.cell.text[0] && data.cell.text[0].startsWith('R$')) {
-            const rawText = data.cell.text.join(''); // Junta múltiplas partes
-            const compact = rawText.replace(/[\r\n\s]+/g, '\u00A0'); // Remove tudo que quebra e usa espaço inquebrável
-            data.cell.text = [compact];
-            data.cell.styles.minCellWidth = 20; // Garante largura mínima
-            data.cell.styles.cellWidth = 'wrap'; // Permite encolhimento, mas evita quebra
-        }
-    },
-    // Garante que o valor monetário nunca quebre
-    willDrawCell: function(data) {
-        if (data.cell.raw && typeof data.cell.raw === 'string' && data.cell.raw.startsWith('R$')) {
-            data.cell.styles.whiteSpace = 'nowrap';
-        }
-    }
-});
+                    if (data.cell.text && data.cell.text[0] && data.cell.text[0].startsWith('R$')) {
+                        const rawText = data.cell.text.join('');
+                        const compact = rawText.replace(/[\r\n\s]+/g, '\u00A0');
+                        data.cell.text = [compact];
+                        data.cell.styles.minCellWidth = 20;
+                        data.cell.styles.cellWidth = 'wrap';
+                    }
+                },
+                willDrawCell: function(data) {
+                    if (data.cell.raw && typeof data.cell.raw === 'string' && data.cell.raw.startsWith('R$')) {
+                        data.cell.styles.whiteSpace = 'nowrap';
+                    }
+                }
+            });
 
             const finalY = doc.lastAutoTable.finalY + 10;
             const closing = doc.splitTextToSize(closingText, 180);
@@ -1090,7 +1211,7 @@ Laboratório LAMIC`;
 
         /* ====================== EXPORTAR/IMPORTAR JSON ====================== */
         document.getElementById('exportBtn').onclick = () => {
-            const data = {selectedExams, selectedTables};
+            const data = {selectedExams, selectedTables, editedTableValues};
             const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -1110,6 +1231,7 @@ Laboratório LAMIC`;
                     if(json.selectedExams && json.selectedTables){
                         selectedExams = json.selectedExams;
                         selectedTables = json.selectedTables;
+                        editedTableValues = json.editedTableValues || {};
                         saveToLocalStorage();
                         renderTableHeader();
                         renderTable(Object.keys(selectedExams));
@@ -1130,7 +1252,7 @@ Laboratório LAMIC`;
         document.getElementById('resetBtn').onclick = () => {
             if(confirm('Resetar tudo?')){
                 localStorage.removeItem('lamicData');
-                selectedExams = {}; selectedTables = [];
+                selectedExams = {}; selectedTables = []; editedTableValues = {};
                 renderTableHeader(); renderTable([]); 
                 document.getElementById('downloadIcon').style.display = 'none';
             }
