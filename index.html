@@ -981,38 +981,63 @@ Laboratório LAMIC`;
                 i.onkeydown = e => { if(e.key === 'Enter') i.blur(); };
             });
 
-            // Table value input
-            document.querySelectorAll('.table-value-input').forEach(input => {
-                const table = input.dataset.table;
-                const exam = input.dataset.exame;
+// Table value input
+document.querySelectorAll('.table-value-input').forEach(input => {
+    const table = input.dataset.table;
+    const exam = input.dataset.exame;
 
-                input.oninput = () => {
-                    const val = normalizeDecimalInput(input.value);
-                    input.value = val ? parseFloat(val).toFixed(2) : '';
-                };
+    let lastValid = input.value; // Guarda o último valor válido
 
-                input.onblur = () => {
-                    const raw = normalizeDecimalInput(input.value);
-                    const num = raw ? parseFloat(raw) : null;
-                    if (num === null) {
-                        input.value = '';
-                        if (editedTableValues[table]?.[exam]) {
-                            delete editedTableValues[table][exam];
-                            if (Object.keys(editedTableValues[table]).length === 0) delete editedTableValues[table];
-                        }
-                    } else {
-                        if (!editedTableValues[table]) editedTableValues[table] = {};
-                        if (!editedTableValues[table][exam]) {
-                            editedTableValues[table][exam] = { original: getOriginalValue(table, exam) };
-                        }
-                        editedTableValues[table][exam].current = num;
-                    }
-                    saveToLocalStorage();
-                    renderTable(Object.keys(selectedExams));
-                };
+    input.oninput = (e) => {
+        const raw = e.target.value;
+        const normalized = normalizeDecimalInput(raw);
 
-                input.onkeydown = e => { if(e.key === 'Enter') input.blur(); };
-            });
+        // Permite digitação livre enquanto for válido ou vazio
+        if (normalized === '' || !isNaN(normalized)) {
+            lastValid = normalized;
+            // Mostra formato com 2 casas apenas se for número válido
+            if (normalized && !normalized.includes('.')) {
+                e.target.value = normalized; // Deixa como está enquanto digita
+            } else if (normalized) {
+                const num = parseFloat(normalized);
+                if (!isNaN(num)) {
+                    e.target.value = num.toFixed(2);
+                }
+            } else {
+                e.target.value = '';
+            }
+        } else {
+            // Se inválido, restaura último válido
+            e.target.value = lastValid;
+        }
+    };
+
+    input.onblur = () => {
+        const raw = normalizeDecimalInput(input.value);
+        const num = raw ? parseFloat(raw) : null;
+
+        if (num === null) {
+            input.value = '';
+            if (editedTableValues[table]?.[exam]) {
+                delete editedTableValues[table][exam];
+                if (Object.keys(editedTableValues[table]).length === 0) delete editedTableValues[table];
+            }
+        } else {
+            if (!editedTableValues[table]) editedTableValues[table] = {};
+            if (!editedTableValues[table][exam]) {
+                editedTableValues[table][exam] = { original: getOriginalValue(table, exam) };
+            }
+            editedTableValues[table][exam].current = num;
+            input.value = num.toFixed(2); // Garante formato final
+        }
+        saveToLocalStorage();
+        renderTable(Object.keys(selectedExams));
+    };
+
+    input.onkeydown = e => { 
+        if (e.key === 'Enter') input.blur(); 
+    };
+});
 
             // Reset icon
             document.querySelectorAll('.reset-table-icon').forEach(icon => {
