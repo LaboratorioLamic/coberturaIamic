@@ -1236,43 +1236,80 @@ document.querySelectorAll('.table-value-input').forEach(input => {
 
         /* ====================== EXPORTAR/IMPORTAR JSON ====================== */
         document.getElementById('exportBtn').onclick = () => {
-            const data = {selectedExams, selectedTables, editedTableValues};
-            const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'lamic_lista_exames.json';
-            a.click();
-            URL.revokeObjectURL(url);
-        };
+    const data = {
+        selectedExams,
+        selectedTables,
+        editedTableValues // Inclui valores editados das tabelas
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'Lamic Cobertura de Valores.json';
+    a.click();
+    URL.revokeObjectURL(url);
+};
 
-        document.getElementById('importFile').onchange = e => {
-            const file = e.target.files[0];
-            if(!file) return;
-            const reader = new FileReader();
-            reader.onload = ev => {
-                try{
-                    const json = JSON.parse(ev.target.result);
-                    if(json.selectedExams && json.selectedTables){
-                        selectedExams = json.selectedExams;
-                        selectedTables = json.selectedTables;
-                        editedTableValues = json.editedTableValues || {};
-                        saveToLocalStorage();
-                        renderTableHeader();
-                        renderTable(Object.keys(selectedExams));
-                        if(Object.keys(selectedExams).length) document.getElementById('downloadIcon').style.display = 'block';
-                        showWarning('Lista importada com sucesso!');
-                    }else{
-                        showWarning('Arquivo JSON inválido.', true);
+document.getElementById('importFile').onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+        try {
+            const json = JSON.parse(ev.target.result);
+
+            // Validação robusta da estrutura
+            if (!json.selectedExams || !Array.isArray(json.selectedTables)) {
+                showWarning('Arquivo JSON inválido: estrutura incorreta.', true);
+                return;
+            }
+
+            // Carrega dados com fallback seguro
+            selectedExams = json.selectedExams || {};
+            selectedTables = Array.isArray(json.selectedTables) ? json.selectedTables : [];
+            editedTableValues = json.editedTableValues || {};
+
+            // Valida se as tabelas e exames ainda existem no tableData
+            const validTables = Object.keys(tableData);
+            selectedTables = selectedTables.filter(t => validTables.includes(t));
+
+            const validExams = new Set();
+            Object.values(tableData).forEach(tab => Object.keys(tab).forEach(ex => validExams.add(ex)));
+            Object.keys(validExams).forEach(ex => {
+                if (!validExams.has(ex)) delete selectedExams[ex];
+            });
+
+            // Limpa edições órfãs
+            Object.keys(editedTableValues).forEach(t => {
+                if (!validTables.includes(t)) {
+                    delete editedTableValues[t];
+                } else {
+                    Object.keys(editedTableValues[t]).forEach(ex => {
+                        if (!validExams.has(ex)) {
+                            delete editedTableValues[t][ex];
+                        }
+                    });
+                    if (Object.keys(editedTableValues[t]).length === 0) {
+                        delete editedTableValues[t];
                     }
-                }catch(err){
-                    showWarning('Erro ao ler o arquivo.', true);
                 }
-            };
-            reader.readAsText(file);
-            e.target.value = '';
-        };
+            });
 
+            saveToLocalStorage();
+            renderTableHeader();
+            renderTable(Object.keys(selectedExams));
+            if (Object.keys(selectedExams).length) {
+                document.getElementById('downloadIcon').style.display = 'block';
+            }
+            showWarning('Lista importada com sucesso!');
+        } catch (err) {
+            console.error('Erro ao importar JSON:', err);
+            showWarning('Erro ao processar o arquivo.', true);
+        }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+};
         /* ====================== RESET ====================== */
         document.getElementById('resetBtn').onclick = () => {
             if(confirm('Resetar tudo?')){
