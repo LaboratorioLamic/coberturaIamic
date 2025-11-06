@@ -177,7 +177,7 @@
             color: var(--primary);
             font-size: 20px;
             z-index: 5;
-            transition: all 0.2s;
+            transitionlığa: all 0.2s;
         }
 
         .download-icon:hover {
@@ -219,6 +219,7 @@
             font-size: 14.5px;
             letter-spacing: 0.3px;
             position: relative;
+            white-space: nowrap;
         }
 
         thead th:first-child {
@@ -419,23 +420,34 @@
             transform: translateY(-1px);
         }
 
-        .warning-message {
-            display: none;
+        /* Warning de erro (senha incorreta) - vermelho */
+        .warning-message.error {
+            background: linear-gradient(135deg, #c82333, #dc3545);
+            color: #fff;
+            box-shadow: 0 6px 16px rgba(220, 53, 69, 0.3);
+        }
+
+        /* Warning de sucesso - verde */
+        .warning-message.success {
             background: linear-gradient(135deg, #2e9625, #25ad3c);
             color: #fff;
+            box-shadow: 0 6px 16px rgba(53, 220, 61, 0.3);
+        }
+
+        .warning-message {
+            display: none;
             padding: 16px 24px;
             border-radius: 12px;
-            box-shadow: 0 6px 16px rgba(53, 220, 61, 0.3);
             font-size: 16px;
             font-weight: 600;
             position: fixed;
             top: 20px;
             left: 50%;
             transform: translateX(-50%);
-            z-index: 1000;
-            animation: warningPop 0.5s;
+            z-index: 3000; /* Acima do modal (z-index 2000) */
             max-width: 90%;
             text-align: center;
+            animation: warningPop 0.5s;
         }
 
         @keyframes warningPop {
@@ -531,6 +543,11 @@
             display: none;
         }
 
+        /* Cores de comparação (tabela HTML) */
+        .cell-higher { background-color: #ffebee; color: #c62828; font-weight: 600; }
+        .cell-equal { background-color: #fffde7; color: #f9a825; font-weight: 600; }
+        .cell-lower { background-color: #e8f5e9; color: #2e7d32; font-weight: 600; }
+
         @media (max-width: 768px) {
             .logo-container {
                 position: relative;
@@ -571,10 +588,10 @@
             }
         }
         #comparisonTable thead th:first-child,
-#comparisonTable tbody td:first-child {
-    text-align: left;
-    padding-left: 16px;
-}
+        #comparisonTable tbody td:first-child {
+            text-align: left;
+            padding-left: 16px;
+        }
     </style>
 </head>
 <body>
@@ -664,9 +681,12 @@ Atenciosamente, Dr. Leonardo Bezerra
 Laboratório LAMIC`;
 
         /* ====================== FUNÇÕES AUXILIARES ====================== */
-        function showWarning(msg){
+        function showWarning(msg, isError = false){
             const el = document.getElementById('warning-message');
-            document.getElementById('warning-text').textContent = msg;
+            const text = document.getElementById('warning-text');
+            text.textContent = msg;
+            el.classList.remove('success', 'error');
+            el.classList.add(isError ? 'error' : 'success');
             el.style.display = 'block';
             setTimeout(() => el.style.display = 'none', 3000);
         }
@@ -712,7 +732,7 @@ Laboratório LAMIC`;
                 return j.record.password === pwd;
             }catch(e){
                 console.error(e);
-                showWarning('Erro ao validar senha');
+                showWarning('Erro ao validar senha', true);
                 return false;
             }
         }
@@ -735,12 +755,12 @@ Laboratório LAMIC`;
         document.getElementById('password-submit').onclick = async () => {
             if(isLocked) return;
             const pwd = document.getElementById('password-input').value.trim();
-            if(!pwd) return showWarning('Digite a senha');
+            if(!pwd) return showWarning('Digite a senha', true);
             const ok = await validatePassword(pwd);
             if(!ok){
                 loginAttempts++;
                 document.getElementById('modal-content').classList.add('error');
-                showWarning('Senha incorreta');
+                showWarning('Senha incorreta', true);
                 setTimeout(() => document.getElementById('modal-content').classList.remove('error'), 500);
                 if(loginAttempts >= 5) startLockout();
                 return;
@@ -761,7 +781,7 @@ Laboratório LAMIC`;
                 rows = json;
             }catch(e){
                 console.error('Erro carregando tabelas', e);
-                showWarning('Não foi possível carregar as tabelas.');
+                showWarning('Não foi possível carregar as tabelas.', true);
             }
 
             tableData = {};
@@ -860,9 +880,19 @@ Laboratório LAMIC`;
                            <td>${d.material || 'N/A'}</td>
                            <td>${d.prazo || 'N/A'}</td>
                            <td><input type="text" class="proposta-input" value="${d.proposta || ''}" data-exame="${ex}"></td>`;
+
+                const propostaValor = parseFloat(normalizeDecimalInput(d.proposta)) || null;
+
                 selectedTables.forEach(t => {
                     const v = tableData[t][ex]?.valor;
-                    cells += `<td>${v ? 'R$ ' + v.toFixed(2) : '—'}</td>`;
+                    const cellValue = v ? v.toFixed(2) : '—';
+                    let cellClass = '';
+                    if (v !== undefined && propostaValor !== null) {
+                        if (v > propostaValor) cellClass = 'cell-higher';
+                        else if (v === propostaValor) cellClass = 'cell-equal';
+                        else if (v < propostaValor) cellClass = 'cell-lower';
+                    }
+                    cells += `<td class="${cellClass}">R$ ${cellValue}</td>`;
                 });
                 cells += `<td><i class="fas fa-trash delete-icon" data-exame="${ex}"></i></td>`;
                 tr.innerHTML = cells; body.appendChild(tr);
@@ -873,6 +903,7 @@ Laboratório LAMIC`;
                     const ex = e.target.dataset.exame;
                     selectedExams[ex].proposta = normalizeDecimalInput(e.target.value);
                     saveToLocalStorage();
+                    renderTable(Object.keys(selectedExams)); // Re-renderiza para atualizar cores
                 };
                 i.onkeydown = e => { if(e.key === 'Enter') i.blur(); };
             });
@@ -989,12 +1020,46 @@ Laboratório LAMIC`;
             const colWidths = {0:50,1:30,2:30,3:colWidthProposta};
             for(let i=4; i<head[0].length; i++) colWidths[i] = colWidthProposta;
 
+            // Função para definir cor do texto com base na comparação
+            const getTextColor = (tableVal, propVal) => {
+                if (tableVal === undefined || propVal === null) return [0,0,0]; // preto
+                if (tableVal > propVal) return [198, 40, 40]; // vermelho
+                if (tableVal === propVal) return [249, 168, 37]; // amarelo/laranja
+                return [46, 125, 50]; // verde
+            };
+
             doc.autoTable({
-                startY: tableY, head: head, body: body, theme: 'striped',
-                styles: {fontSize:9, cellPadding:5, lineHeight:1.3, overflow:'linebreak', valign:'middle', halign:'center'},
-                headStyles: {fillColor:[26,43,95], textColor:[255,255,255], fontStyle:'bold', fontSize:10, halign:'center'},
-                columnStyles: colWidths, margin: {left:5, right:5}
-            });
+    startY: tableY, head: head, body: body, theme: 'striped',
+    styles: {fontSize:9, cellPadding:5, lineHeight:1.3, overflow:'linebreak', valign:'middle', halign:'center'},
+    headStyles: {fillColor:[26,43,95], textColor:[255,255,255], fontStyle:'bold', fontSize:10, halign:'center'},
+    columnStyles: colWidths,
+    margin: {left:5, right:5},
+    didParseCell: function(data) {
+        // Aplica cor do texto com base na comparação
+        if (data.section === 'body' && data.column.index >= 4) {
+            const ex = data.row.raw[0];
+            const propVal = parseFloat(normalizeDecimalInput(selectedExams[ex]?.proposta)) || null;
+            const tableVal = tableData[selectedTables[data.column.index - 4]]?.[ex]?.valor;
+            const color = getTextColor(tableVal, propVal);
+            data.cell.styles.textColor = color;
+        }
+
+        // Impede quebra de linha em valores monetários (R$ 10,00)
+        if (data.cell.text && data.cell.text[0] && data.cell.text[0].startsWith('R$')) {
+            const rawText = data.cell.text.join(''); // Junta múltiplas partes
+            const compact = rawText.replace(/[\r\n\s]+/g, '\u00A0'); // Remove tudo que quebra e usa espaço inquebrável
+            data.cell.text = [compact];
+            data.cell.styles.minCellWidth = 20; // Garante largura mínima
+            data.cell.styles.cellWidth = 'wrap'; // Permite encolhimento, mas evita quebra
+        }
+    },
+    // Garante que o valor monetário nunca quebre
+    willDrawCell: function(data) {
+        if (data.cell.raw && typeof data.cell.raw === 'string' && data.cell.raw.startsWith('R$')) {
+            data.cell.styles.whiteSpace = 'nowrap';
+        }
+    }
+});
 
             const finalY = doc.lastAutoTable.finalY + 10;
             const closing = doc.splitTextToSize(closingText, 180);
@@ -1009,7 +1074,7 @@ Laboratório LAMIC`;
 
         /* ====================== BOTÕES PDF ====================== */
         document.getElementById('downloadIcon').onclick = () => {
-            if(!Object.keys(selectedExams).length) return showWarning('Selecione ao menos um exame');
+            if(!Object.keys(selectedExams).length) return showWarning('Selecione ao menos um exame', true);
             showPresentationModal();
         };
 
@@ -1051,10 +1116,10 @@ Laboratório LAMIC`;
                         if(Object.keys(selectedExams).length) document.getElementById('downloadIcon').style.display = 'block';
                         showWarning('Lista importada com sucesso!');
                     }else{
-                        showWarning('Arquivo JSON inválido.');
+                        showWarning('Arquivo JSON inválido.', true);
                     }
                 }catch(err){
-                    showWarning('Erro ao ler o arquivo.');
+                    showWarning('Erro ao ler o arquivo.', true);
                 }
             };
             reader.readAsText(file);
