@@ -570,6 +570,11 @@
                 max-width: 300px;
             }
         }
+        #comparisonTable thead th:first-child,
+#comparisonTable tbody td:first-child {
+    text-align: left;
+    padding-left: 16px;
+}
     </style>
 </head>
 <body>
@@ -593,8 +598,7 @@
         <div class="modal-content-presentation">
             <h2>Editar Texto de Apresentação</h2>
             <textarea id="presentationText"></textarea>
-            <button class="cancel" id="cancel-presentation">Cancelar</button>
-            <button class="download" id="download-presentation">Baixar</button>
+            <button class="cancel" id="cancel-presentation">Cancelar</button><button class="download" id="download-presentation">Baixar</button>
         </div>
     </div>
 
