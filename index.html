@@ -862,49 +862,94 @@ Laboratório LAMIC`;
         };
 
         /* ====================== CARREGAMENTO DE DADOS ====================== */
-        async function loadData(){
-            document.getElementById('loadingOverlay').style.display = 'flex';
+async function loadData(){
+    document.getElementById('loadingOverlay').style.display = 'flex';
 
-            let rows = [];
-            try{
-                const r = await fetch(tablesUrl);
-                if(!r.ok) throw new Error('HTTP '+r.status);
-                const json = await r.json();
-                if(!Array.isArray(json)) throw new Error('Formato inválido');
-                rows = json;
-            }catch(e){
-                console.error('Erro carregando tabelas', e);
-                showWarning('Não foi possível carregar as tabelas.', true);
+    let rows = [];
+    try{
+        const r = await fetch(tablesUrl);
+        if(!r.ok) throw new Error('HTTP '+r.status);
+        const json = await r.json();
+        if(!Array.isArray(json)) throw new Error('Formato inválido');
+        rows = json;
+    }catch(e){
+        console.error('Erro carregando tabelas', e);
+        showWarning('Não foi possível carregar as tabelas.', true);
+    }
+
+    const newTableData = {};
+    const tableNames = new Set();
+    rows.forEach(row => {
+        if(!row || !row.Tabela || !row.Exame || row.Valor == null) return;
+        const tab = String(row.Tabela).trim();
+        const ex = String(row.Exame).trim();
+        const val = parseFloat(row.Valor);
+        const mat = row.Material ? String(row.Material).trim() : '-';
+        const pra = row.Prazo ? String(row.Prazo).trim() : '-';
+        if(!tab || !ex || isNaN(val)) return;
+        if(!newTableData[tab]) newTableData[tab] = {};
+        newTableData[tab][ex] = {valor: val, material: mat, prazo: pra};
+        tableNames.add(tab);
+    });
+
+    // Carrega do JSONBin
+    const saved = await loadFromJsonBin();
+    selectedExams = saved.selectedExams || {};
+    selectedTables = saved.selectedTables || [];
+    editedTableValues = saved.editedTableValues || {};
+
+    // === CORREÇÃO: Substitui tableData e atualiza selectedExams com dados do Sheets ===
+    tableData = newTableData;
+
+    // Atualiza material e prazo em selectedExams se o exame existir em alguma tabela
+    Object.keys(selectedExams).forEach(ex => {
+        let found = false;
+        for (const tab of Object.keys(tableData)) {
+            if (tableData[tab][ex]) {
+                selectedExams[ex].material = tableData[tab][ex].material;
+                selectedExams[ex].prazo = tableData[tab][ex].prazo;
+                found = true;
+                break;
             }
-
-            tableData = {};
-            const tableNames = new Set();
-            rows.forEach(row => {
-                if(!row || !row.Tabela || !row.Exame || row.Valor == null) return;
-                const tab = String(row.Tabela).trim();
-                const ex = String(row.Exame).trim();
-                const val = parseFloat(row.Valor);
-                const mat = row.Material ? String(row.Material).trim() : '-';
-                const pra = row.Prazo ? String(row.Prazo).trim() : '-';
-                if(!tab || !ex || isNaN(val)) return;
-                if(!tableData[tab]) tableData[tab] = {};
-                tableData[tab][ex] = {valor: val, material: mat, prazo: pra};
-                tableNames.add(tab);
-            });
-
-            // Carrega do JSONBin
-            const saved = await loadFromJsonBin();
-            selectedExams = saved.selectedExams || {};
-            selectedTables = saved.selectedTables || [];
-            editedTableValues = saved.editedTableValues || {};
-
-            renderTableHeader();
-            renderTable(Object.keys(selectedExams));
-            populateTableDropdown([...tableNames]);
-
-            document.getElementById('loadingOverlay').style.display = 'none';
-            if(Object.keys(selectedExams).length) document.getElementById('downloadIcon').style.display = 'block';
         }
+        // Remove exame se não existe mais no Sheets
+        if (!found) {
+            delete selectedExams[ex];
+            selectedTables.forEach(t => {
+                if (editedTableValues[t]?.[ex]) delete editedTableValues[t][ex];
+            });
+        }
+    });
+
+    // Filtra tabelas selecionadas que ainda existem
+    selectedTables = selectedTables.filter(t => tableNames.has(t));
+
+    // Limpa editedTableValues para tabelas/exames inexistentes
+    Object.keys(editedTableValues).forEach(t => {
+        if (!tableNames.has(t)) {
+            delete editedTableValues[t];
+        } else {
+            Object.keys(editedTableValues[t]).forEach(ex => {
+                if (!tableData[t][ex]) {
+                    delete editedTableValues[t][ex];
+                }
+            });
+            if (Object.keys(editedTableValues[t]).length === 0) {
+                delete editedTableValues[t];
+            }
+        }
+    });
+
+    // Salva estado corrigido
+    await saveToJsonBin();
+
+    renderTableHeader();
+    renderTable(Object.keys(selectedExams));
+    populateTableDropdown([...tableNames]);
+
+    document.getElementById('loadingOverlay').style.display = 'none';
+    if(Object.keys(selectedExams).length) document.getElementById('downloadIcon').style.display = 'block';
+}
 
         /* ====================== DROPDOWN DE TABELAS ====================== */
         function populateTableDropdown(tables){
