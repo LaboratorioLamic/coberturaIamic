@@ -973,27 +973,33 @@ Laboratório LAMIC`;
 
         /* ====================== DROPDOWN DE TABELAS ====================== */
         function populateTableDropdown(tables){
-            const dd = document.getElementById('tableDropdown'); dd.innerHTML = '';
-            if(!tables.length){
-                const el = document.createElement('div');
-                el.className = 'table-item'; el.textContent = 'Nenhuma tabela disponível';
-                el.style.color = '#999'; el.style.cursor = 'default';
-                dd.appendChild(el); return;
+    const dd = document.getElementById('tableDropdown'); 
+    dd.innerHTML = '';
+    if(!tables.length){
+        const el = document.createElement('div');
+        el.className = 'table-item'; 
+        el.textContent = 'Nenhuma tabela disponível';
+        el.style.color = '#999'; 
+        el.style.cursor = 'default';
+        dd.appendChild(el); 
+        return;
+    }
+    tables.forEach(t => {
+        const el = document.createElement('div');
+        el.className = 'table-item'; 
+        el.textContent = t; // ← CORREÇÃO: Adiciona o nome da tabela
+        el.onclick = () => {
+            if(!selectedTables.includes(t)){
+                selectedTables.push(t);
+                saveToJsonBin();
+                renderTableHeader(); 
+                renderTable(Object.keys(selectedExams));
             }
-            tables.forEach(t => {
-                const el = document.createElement('div');
-                el.className = 'table-item'; el.onload = t;
-                el.onclick = () => {
-                    if(!selectedTables.includes(t)){
-                        selectedTables.push(t);
-                        saveToJsonBin();
-                        renderTableHeader(); renderTable(Object.keys(selectedExams));
-                    }
-                    dd.style.display = 'none';
-                };
-                dd.appendChild(el);
-            });
-        }
+            dd.style.display = 'none';
+        };
+        dd.appendChild(el);
+    });
+}
 
         /* ====================== RENDER TABELA ====================== */
         function renderTableHeader(){
