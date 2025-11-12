@@ -1322,7 +1322,7 @@ Laboratório LAMIC`;
             doc.setFontSize(11);
             doc.text(closing, 15, finalY);
 
-            doc.save('LAMIC - Cobertura de Valores.pdf');
+            doc.save(`LAMIC - Cobertura de Valores ${dataFormatada}.pdf`);
 
             document.getElementById('loadingDownloadIcon').style.display = 'none';
             document.getElementById('downloadIcon').style.display = 'block';
@@ -1433,6 +1433,8 @@ Laboratório LAMIC`;
             }
         };
         document.addEventListener('contextmenu', e => e.preventDefault());
+        const hoje = new Date();
+        const dataFormatada = `${String(hoje.getDate()).padStart(2, '0')}-${String(hoje.getMonth() + 1).padStart(2, '0')}-${hoje.getFullYear()}`;
     </script>
 </body>
 </html>
