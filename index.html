@@ -267,7 +267,7 @@
 
         .table-value-input {
             width: 80px;
-            padding: 6px 24px 6px 8px;
+            padding: 6px 28px 6px 8px;
             border: 1px solid var(--border);
             border-radius: 8px;
             font-size: 14px;
@@ -281,26 +281,40 @@
             box-shadow: 0 0 0 2px rgba(26, 43, 95, 0.15);
         }
 
-        .reset-table-icon {
+        .reset-table-icon,
+        .clear-table-icon {
             position: absolute;
             right: 6px;
             top: 50%;
             transform: translateY(-50%);
-            color: var(--gold);
             font-size: 15px;
             cursor: pointer;
             opacity: 0;
             transition: opacity 0.2s;
             pointer-events: none;
+            z-index: 1;
         }
 
-        .table-value-wrapper.edited .reset-table-icon {
+        .table-value-wrapper.edited .reset-table-icon,
+        .table-value-wrapper.manual .clear-table-icon {
             opacity: 1;
             pointer-events: auto;
         }
 
+        .reset-table-icon {
+            color: var(--gold);
+        }
+
         .reset-table-icon:hover {
             color: #e67e22;
+        }
+
+        .clear-table-icon {
+            color: var(--danger);
+        }
+
+        .clear-table-icon:hover {
+            color: #c82333;
         }
 
         .delete-icon, .delete-table-icon {
@@ -752,6 +766,10 @@ Laboratório LAMIC`;
             return orig != null && parseFloat(curr) !== orig;
         }
 
+        function isManualEntry(table, exam) {
+            return editedTableValues[table]?.[exam] && getOriginalValue(table, exam) === undefined;
+        }
+
         /* ====================== JSONBIN ====================== */
         async function saveToJsonBin() {
             try {
@@ -862,7 +880,7 @@ Laboratório LAMIC`;
         };
 
         /* ====================== CARREGAMENTO DE DADOS ====================== */
-async function loadData(){
+        async function loadData(){
     document.getElementById('loadingOverlay').style.display = 'flex';
 
     let rows = [];
@@ -930,7 +948,9 @@ async function loadData(){
             delete editedTableValues[t];
         } else {
             Object.keys(editedTableValues[t]).forEach(ex => {
-                if (!tableData[t][ex]) {
+                const edit = editedTableValues[t][ex];
+                // Só deleta se: exame não existe no Sheets E não é manual (com original definido ou sem current)
+                if (!tableData[t][ex] && (edit.original !== undefined || !edit.current)) {
                     delete editedTableValues[t][ex];
                 }
             });
@@ -962,7 +982,7 @@ async function loadData(){
             }
             tables.forEach(t => {
                 const el = document.createElement('div');
-                el.className = 'table-item'; el.textContent = t;
+                el.className = 'table-item'; el.onload = t;
                 el.onclick = () => {
                     if(!selectedTables.includes(t)){
                         selectedTables.push(t);
@@ -1022,18 +1042,18 @@ async function loadData(){
                     const cellValue = displayVal != null ? displayVal.toFixed(2) : '—';
 
                     let cellClass = '';
-                    if (originalVal !== undefined && propostaValor !== null) {
-                        const compVal = displayVal != null ? displayVal : originalVal;
-                        if (compVal > propostaValor) cellClass = 'cell-higher';
-                        else if (compVal === propostaValor) cellClass = 'cell-equal';
-                        else if (compVal < propostaValor) cellClass = 'cell-lower';
+                    if (displayVal != null && propostaValor != null) {
+                        if (displayVal > propostaValor) cellClass = 'cell-higher';
+                        else if (displayVal === propostaValor) cellClass = 'cell-equal';
+                        else if (displayVal < propostaValor) cellClass = 'cell-lower';
                     }
 
-                    const wrapperClass = isEdited(t, ex) ? 'edited' : '';
+                    const wrapperClass = isEdited(t, ex) ? 'edited' : (isManualEntry(t, ex) ? 'manual' : '');
                     cells += `<td class="${cellClass}">
                         <div class="table-value-wrapper ${wrapperClass}">
                             <input type="text" class="table-value-input" value="${displayVal != null ? displayVal.toFixed(2) : ''}" data-table="${t}" data-exame="${ex}">
                             <i class="fas fa-rotate-left reset-table-icon" data-table="${t}" data-exame="${ex}"></i>
+                            <i class="fas fa-times clear-table-icon" data-table="${t}" data-exame="${ex}"></i>
                         </div>
                     </td>`;
                 });
@@ -1107,8 +1127,23 @@ async function loadData(){
                 };
             });
 
-            // Reset icon
+            // Reset icon (apenas se existe valor original)
             document.querySelectorAll('.reset-table-icon').forEach(icon => {
+                icon.onclick = e => {
+                    e.stopPropagation();
+                    const table = icon.dataset.table;
+                    const exam = icon.dataset.exame;
+                    if (editedTableValues[table]?.[exam]) {
+                        delete editedTableValues[table][exam];
+                        if (Object.keys(editedTableValues[table]).length === 0) delete editedTableValues[table];
+                        saveToJsonBin();
+                        renderTable(Object.keys(selectedExams));
+                    }
+                };
+            });
+
+            // Clear icon (apenas para entradas manuais)
+            document.querySelectorAll('.clear-table-icon').forEach(icon => {
                 icon.onclick = e => {
                     e.stopPropagation();
                     const table = icon.dataset.table;
