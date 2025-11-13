@@ -26,7 +26,6 @@
             --radius: 12px;
             --gold: #f39c12;
         }
-
         body {
             font-family: 'Inter', 'Roboto Slab', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #e6f0fa 0%, #f4f7fa 100%);
@@ -38,7 +37,6 @@
             align-items: center;
             min-height: 100vh;
         }
-
         h1 {
             color: var(--primary);
             margin: 15px 0 10px;
@@ -47,7 +45,6 @@
             text-align: center;
             letter-spacing: -0.5px;
         }
-
         .logo-container {
             position: absolute;
             top: 20px;
@@ -55,13 +52,11 @@
             z-index: 10;
             display: none;
         }
-
         .logo-container img {
             width: 180px;
             height: auto;
             filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
         }
-
         .search-container {
             position: relative;
             width: 100%;
@@ -69,7 +64,6 @@
             margin-bottom: 25px;
             display: none;
         }
-
         #searchInput {
             width: 100%;
             padding: 14px 50px 14px 16px;
@@ -80,13 +74,11 @@
             background: #fff;
             transition: all 0.3s ease;
         }
-
         #searchInput:focus {
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(26, 43, 95, 0.15);
         }
-
         .add-table-btn {
             position: absolute;
             right: -55px;
@@ -106,13 +98,11 @@
             justify-content: center;
             transition: all 0.3s ease;
         }
-
         .add-table-btn:hover {
             background: var(--primary-dark);
             transform: translateY(-50%) scale(1.05);
             box-shadow: 0 5px 12px rgba(26, 43, 95, 0.4);
         }
-
         .table-dropdown {
             position: absolute;
             right: -10px;
@@ -127,7 +117,6 @@
             width: 240px;
             display: none;
         }
-
         .table-item {
             padding: 14px 16px;
             cursor: pointer;
@@ -135,15 +124,12 @@
             font-size: 14.5px;
             transition: background 0.2s;
         }
-
         .table-item:hover {
             background: #ebf3fd;
         }
-
         .table-item:last-child {
             border-bottom: none;
         }
-
         .autocomplete-list {
             position: absolute;
             width: 100%;
@@ -157,18 +143,15 @@
             display: none;
             margin-top: 5px;
         }
-
         .autocomplete-item {
             padding: 12px 16px;
             cursor: pointer;
             font-size: 15px;
             border-bottom: 1px solid #f0f0f0;
         }
-
         .autocomplete-item:hover {
             background: #f8fbff;
         }
-
         .download-icon {
             position: absolute;
             right: 18px;
@@ -180,12 +163,10 @@
             z-index: 5;
             transition: all 0.2s;
         }
-
         .download-icon:hover {
             color: var(--accent);
             transform: translateY(-50%) scale(1.1);
         }
-
         .loading-download {
             position: absolute;
             right: 18px;
@@ -197,7 +178,6 @@
             display: none;
             animation: spin 1s linear infinite;
         }
-
         table {
             width: 100%;
             max-width: 1800px;
@@ -210,7 +190,6 @@
             overflow: hidden;
             display: none;
         }
-
         thead th {
             background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: #fff;
@@ -222,15 +201,12 @@
             position: relative;
             white-space: nowrap;
         }
-
         thead th:first-child {
             border-top-left-radius: var(--radius);
         }
-
         thead th:last-child {
             border-top-right-radius: var(--radius);
         }
-
         td {
             padding: 14px 12px;
             text-align: center;
@@ -238,12 +214,10 @@
             font-size: 14.5px;
             vertical-align: middle;
         }
-
         tbody tr:hover {
             background: #f8fbff;
             transition: background 0.2s;
         }
-
         .proposta-input {
             width: 90px;
             padding: 8px 10px;
@@ -253,18 +227,15 @@
             text-align: center;
             transition: all 0.2s;
         }
-
         .proposta-input:focus {
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 2px rgba(26, 43, 95, 0.15);
         }
-
         .table-value-wrapper {
             position: relative;
             display: inline-block;
         }
-
         .table-value-input {
             width: 80px;
             padding: 6px 28px 6px 8px;
@@ -274,13 +245,11 @@
             text-align: right;
             transition: all 0.2s;
         }
-
         .table-value-input:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(26, 43, 95, 0.15);
+            box-shadow: 0 0 0 2px rgba(26, 0, 95, 0.15);
         }
-
         .reset-table-icon,
         .clear-table-icon {
             position: absolute;
@@ -294,29 +263,15 @@
             pointer-events: none;
             z-index: 1;
         }
-
         .table-value-wrapper.edited .reset-table-icon,
         .table-value-wrapper.manual .clear-table-icon {
             opacity: 1;
             pointer-events: auto;
         }
-
-        .reset-table-icon {
-            color: var(--gold);
-        }
-
-        .reset-table-icon:hover {
-            color: #e67e22;
-        }
-
-        .clear-table-icon {
-            color: var(--danger);
-        }
-
-        .clear-table-icon:hover {
-            color: #c82333;
-        }
-
+        .reset-table-icon { color: var(--gold); }
+        .reset-table-icon:hover { color: #e67e22; }
+        .clear-table-icon { color: var(--danger); }
+        .clear-table-icon:hover { color: #c82333; }
         .delete-icon, .delete-table-icon {
             cursor: pointer;
             color: var(--danger);
@@ -325,19 +280,16 @@
             padding: 4px;
             border-radius: 50%;
         }
-
         .delete-icon:hover, .delete-table-icon:hover {
             color: #c82333;
             background: rgba(220, 53, 69, 0.1);
             transform: scale(1.1);
         }
-
         .delete-table-icon {
             font-size: 16px;
             margin-left: 8px;
             padding: 3px;
         }
-
         .loading-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -348,18 +300,15 @@
             z-index: 1000;
             backdrop-filter: blur(4px);
         }
-
         .loading-icon {
             font-size: 68px;
             color: var(--primary);
             animation: spin 1s linear infinite;
         }
-
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-
         .modal {
             display: none;
             position: fixed;
@@ -370,7 +319,6 @@
             z-index: 2000;
             backdrop-filter: blur(5px);
         }
-
         .modal-content, .modal-content-presentation {
             background: #fff;
             padding: 28px;
@@ -380,29 +328,24 @@
             box-shadow: 0 8px 25px rgba(0,0,0,0.2);
             animation: fadeIn 0.3s ease-in-out;
         }
-
         .modal-content-presentation {
             max-width: 800px;
             background: #f8fbff;
             border: 2px solid var(--primary);
         }
-
         .modal-content.error {
             animation: shake 0.5s ease-in-out;
             border: 2px solid var(--danger);
         }
-
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(15px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
         @keyframes shake {
             0%,100% { transform: translateX(0); }
             25% { transform: translateX(-12px); }
             75% { transform: translateX(12px); }
         }
-
         .modal-content h2, .modal-content-presentation h2 {
             font-size: clamp(1.3em, 3vw, 1.7em);
             font-weight: 700;
@@ -410,7 +353,6 @@
             margin-bottom: 20px;
             text-align: center;
         }
-
         .modal-content input {
             width: 90%;
             padding: 12px 14px;
@@ -420,7 +362,6 @@
             margin-bottom: 18px;
             box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
         }
-
         .modal-content-presentation textarea {
             width: 95%;
             height: 380px;
@@ -434,7 +375,6 @@
             background: #fff;
             box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
         }
-
         .modal-content button, .modal-content-presentation button {
             padding: 13px 20px;
             border: none;
@@ -446,50 +386,41 @@
             margin: 1%;
             transition: all 0.3s;
         }
-
         .modal-content button {
             background: var(--primary);
             color: #fff;
             width: 100%;
         }
-
         .modal-content button:hover {
             background: var(--primary-dark);
             transform: translateY(-1px);
         }
-
         .modal-content-presentation button.cancel {
             background: var(--danger);
             color: #fff;
         }
-
         .modal-content-presentation button.cancel:hover {
             background: #c82333;
             transform: translateY(-1px);
         }
-
         .modal-content-presentation button.download {
             background: var(--primary);
             color: #fff;
         }
-
         .modal-content-presentation button.download:hover {
             background: var(--accent);
             transform: translateY(-1px);
         }
-
         .warning-message.error {
             background: linear-gradient(135deg, #c82333, #dc3545);
             color: #fff;
             box-shadow: 0 6px 16px rgba(220, 53, 69, 0.3);
         }
-
         .warning-message.success {
             background: linear-gradient(135deg, #2e9625, #25ad3c);
             color: #fff;
             box-shadow: 0 6px 16px rgba(53, 220, 61, 0.3);
         }
-
         .warning-message {
             display: none;
             padding: 16px 24px;
@@ -505,13 +436,11 @@
             text-align: center;
             animation: warningPop 0.5s;
         }
-
         @keyframes warningPop {
             0% { transform: translateX(-50%) scale(0.8); opacity: 0; }
             50% { transform: translateX(-50%) scale(1.1); opacity: 0.9; }
             100% { transform: translateX(-50%) scale(1); opacity: 1; }
         }
-
         .action-buttons {
             display: flex;
             flex-wrap: wrap;
@@ -519,7 +448,6 @@
             gap: 12px;
             margin-top: 25px;
         }
-
         .reset-btn, .export-btn, .import-btn {
             padding: 14px 20px;
             min-width: 50px;
@@ -533,48 +461,40 @@
             transition: all 0.3s;
             min-width: 160px;
         }
-
         .reset-btn {
             background: var(--warning);
             color: #fff;
+            min-width: 50px;
+            white-space: nowrap;
         }
-
         .reset-btn:hover {
             background: #e67e22;
             transform: translateY(-2px);
             box-shadow: 0 6px 14px rgba(0,0,0,0.2);
         }
-
         .export-btn {
             background: var(--success);
             color: #fff;
             min-width: 50px;
             white-space: nowrap;
         }
-
         .export-btn:hover {
             background: #219653;
             transform: translateY(-2px);
             box-shadow: 0 6px 14px rgba(0,0,0,0.2);
         }
-
         .import-btn {
             background: #6c757d;
             color: #fff;
             min-width: 50px;
             white-space: nowrap;
         }
-
         .import-btn:hover {
             background: #5a6268;
             transform: translateY(-2px);
             box-shadow: 0 6px 14px rgba(0,0,0,0.2);
         }
-
-        .file-input {
-            display: none;
-        }
-
+        .file-input { display: none; }
         .progress-bar-container {
             height: 6px;
             background: #e9ecef;
@@ -583,14 +503,12 @@
             margin: 15px 0;
             display: none;
         }
-
         .progress-bar {
             height: 100%;
             background: var(--primary);
             width: 0%;
             transition: width 0.2s ease;
         }
-
         .lockout-message {
             color: var(--danger);
             font-size: 14px;
@@ -598,11 +516,14 @@
             margin-bottom: 10px;
             display: none;
         }
-
         .cell-higher { background-color: #ffebee; color: #c62828; font-weight: 600; }
         .cell-equal { background-color: #fffde7; color: #f9a825; font-weight: 600; }
         .cell-lower { background-color: #e8f5e9; color: #2e7d32; font-weight: 600; }
-
+        .diff-higher { color: #c62828; font-weight: 600; }
+        .diff-lower { color: #2e7d32; font-weight: 600; }
+        .diff-equal { color: #f9a825; font-weight: 600; }
+        .total-row { background: linear-gradient(135deg, #1a2b5f, #213b70) !important; color: #fff !important; font-weight: 700; }
+        .total-row td { font-size: 15px !important; }
         @media (max-width: 768px) {
             .logo-container {
                 position: relative;
@@ -612,35 +533,12 @@
                 justify-content: center;
                 margin-bottom: 20px;
             }
-
-            .logo-container img {
-                width: 160px;
-            }
-
-            .add-table-btn {
-                right: 10px;
-                top: 50px;
-            }
-
-            .table-dropdown {
-                right: 10px;
-                top: 100px;
-                width: 200px;
-            }
-
-            .modal-content-presentation textarea {
-                height: 280px;
-            }
-
-            .action-buttons {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .reset-btn, .export-btn, .import-btn {
-                width: 100%;
-                max-width: 300px;
-            }
+            .logo-container img { width: 160px; }
+            .add-table-btn { right: 10px; top: 50px; }
+            .table-dropdown { right: 10px; top: 100px; width: 200px; }
+            .modal-content-presentation textarea { height: 280px; }
+            .action-buttons { flex-direction: column; align-items: center; }
+            .reset-btn, .export-btn, .import-btn { width: 100%; max-width: 300px;}
         }
         #comparisonTable thead th:first-child,
         #comparisonTable tbody td:first-child {
@@ -651,8 +549,6 @@
 </head>
 <body>
     <div class="warning-message" id="warning-message"><span id="warning-text"></span></div>
-
-    <!-- MODAL SENHA -->
     <div class="modal" id="password-modal">
         <div class="modal-content" id="modal-content">
             <h2>Cobertura de Exames</h2>
@@ -664,8 +560,6 @@
             <button id="password-submit">Entrar</button>
         </div>
     </div>
-
-    <!-- MODAL APRESENTAÇÃO -->
     <div class="modal" id="presentation-modal">
         <div class="modal-content-presentation">
             <h2>Editar Texto de Apresentação</h2>
@@ -673,10 +567,8 @@
             <button class="cancel" id="cancel-presentation">Cancelar</button><button class="download" id="download-presentation">Baixar</button>
         </div>
     </div>
-
     <div class="logo-container"><img src="https://i.imgur.com/qVfGMyc.png" alt="Logo" id="mainLogo"></div>
     <h1>Lista de Exames</h1>
-
     <div class="search-container">
         <input type="text" id="searchInput" placeholder="Busque e adicione exames...">
         <button class="add-table-btn" id="addTableBtn"><i class="fas fa-plus"></i></button>
@@ -685,14 +577,11 @@
         <i class="fas fa-download download-icon" id="downloadIcon" style="display:none;"></i>
         <i class="fas fa-spinner loading-download" id="loadingDownloadIcon"></i>
     </div>
-
     <div class="loading-overlay" id="loadingOverlay"><i class="fas fa-spinner loading-icon"></i></div>
-
     <table id="comparisonTable">
         <thead id="tableHeader"></thead>
         <tbody id="tableBody"></tbody>
     </table>
-
     <div class="action-buttons">
         <button class="reset-btn" id="resetBtn">Resetar dados</button>
         <button class="export-btn" id="exportBtn">Exportar</button>
@@ -701,42 +590,30 @@
     </div>
 
     <script>
-        /* ====================== CONFIGURAÇÃO ====================== */
         const tablesUrl = 'https://script.google.com/macros/s/AKfycbwZjrx1T7O386TcBWMz0TwPd1L2JCvbaP0GMMQEDqn1-RUr-uZ84O1t1W-Vpplkq1F-/exec';
         const binId = '690dd174ae596e708f4a307c';
         const accessKey = '$2a$10$TgbP6UAIlIQZZafKuEcGp.TMars5/XW./Q7FZshdQm7lF.wZIP0LC';
 
-        /* ====================== VARIÁVEIS GLOBAIS ====================== */
         let tableData = {}, selectedExams = {}, selectedTables = [];
         let editedTableValues = {};
         let loginAttempts = 0, isLocked = false;
 
-        /* ====================== TEXTO PADRÃO ====================== */
         const defaultPresentationText = `Ao (Nome fantasia e CNPJ)
 Prezado(a) Senhor(a),
-
 É com grande satisfação que encaminhamos para apreciação de V.Sa, a nossa proposta orçamentária, para realização de exames laboratoriais de nossa especialidade.
-
 Salientamos que todos os exames aqui apresentados estão disponíveis para imediata realização.
-
 Ademais, ressaltamos que a estrutura do Núcleo Técnico Operacional – NTO do Laboratório LAMIC está apta a realizar uma gama de aproximadamente 1.000 (mil) diferentes exames, e desta forma, caso vossa senhoria demande a realização de algum(ns) exame(s) que não esteja(m) detalhado(s) na presente proposta, encontramo-nos a disposição para apresentar proposta específica para o(s) mesmo(s).
-
 A recepção dos materiais para análise obedecerá aos seguintes horários:
-
-Juazeiro do Norte (NTO – Centro) – ÁREA TÉCNICA 
+Juazeiro do Norte (NTO – Centro) – ÁREA TÉCNICA
 • Segunda-feira à Sexta-feira: 06h00 às 17h00
 • Sábado: 06h00 às 12h00
-
 Entrega dos Resultados:
-
 Os prazos de entrega dos resultados dos exames estão evidenciados ao lado da descrição de cada exame na relação anexa à presente proposta e levam em consideração o horário da entrada do material coletado na área técnica do Laboratório LAMIC.`;
 
         const closingText = `Encontramo-nos à disposição para esclarecer eventuais dúvidas julgadas necessárias acerca do presente orçamento.
-
 Atenciosamente, Dr. Leonardo Bezerra
 Laboratório LAMIC`;
 
-        /* ====================== FUNÇÕES AUXILIARES ====================== */
         function showWarning(msg, isError = false){
             const el = document.getElementById('warning-message');
             const text = document.getElementById('warning-text');
@@ -759,62 +636,29 @@ Laboratório LAMIC`;
             return tableData[table][exam]?.valor;
         }
 
-        function isEdited(table, exam) {
-            if (!editedTableValues[table]?.[exam]) return false;
-            const orig = getOriginalValue(table, exam);
-            const curr = editedTableValues[table][exam].current;
-            return orig != null && parseFloat(curr) !== orig;
-        }
-
-        function isManualEntry(table, exam) {
-            return editedTableValues[table]?.[exam] && getOriginalValue(table, exam) === undefined;
-        }
-
-        /* ====================== JSONBIN ====================== */
         async function saveToJsonBin() {
             try {
-                const response = await fetch(`https://api.jsonbin.io/v3/b/${binId}`, {
+                await fetch(`https://api.jsonbin.io/v3/b/${binId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-Access-Key': accessKey
                     },
-                    body: JSON.stringify({
-                        selectedExams,
-                        selectedTables,
-                        editedTableValues
-                    })
+                    body: JSON.stringify({ selectedExams, selectedTables, editedTableValues })
                 });
-                if (!response.ok) throw new Error('Falha ao salvar');
-            } catch (e) {
-                console.warn('Erro ao salvar no JSONBin:', e);
-                showWarning('Erro ao salvar dados', true);
-            }
+            } catch (e) { console.warn('Erro ao salvar no JSONBin:', e); }
         }
 
         async function loadFromJsonBin() {
             try {
-                const response = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
-                    headers: { 'X-Access-Key': accessKey }
-                });
-                if (!response.ok) throw new Error('Bin não encontrado');
-                const data = await response.json();
+                const r = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`, { headers: { 'X-Access-Key': accessKey } });
+                if (!r.ok) return {};
+                const data = await r.json();
                 return data.record || {};
-            } catch (e) {
-                console.warn('Erro ao carregar do JSONBin:', e);
-                return {};
-            }
+            } catch (e) { return {}; }
         }
 
-        /* ====================== MODAIS ====================== */
-        function showModal(){
-            document.getElementById('password-modal').style.display = 'flex';
-            document.getElementById('password-input').value = '';
-            document.getElementById('modal-content').classList.remove('error');
-            document.getElementById('lockout-message').style.display = 'none';
-            document.getElementById('progress-bar-container').style.display = 'none';
-        }
-
+        function showModal(){ document.getElementById('password-modal').style.display = 'flex'; }
         function hideModal(){
             document.getElementById('password-modal').style.display = 'none';
             document.querySelector('.logo-container').style.display = 'block';
@@ -822,30 +666,20 @@ Laboratório LAMIC`;
             document.querySelector('table').style.display = 'table';
             document.querySelectorAll('.action-buttons button, .action-buttons label').forEach(el => el.style.display = 'block');
         }
-
         function showPresentationModal(){
             document.getElementById('presentation-modal').style.display = 'flex';
             document.getElementById('presentationText').value = defaultPresentationText;
         }
+        function hidePresentationModal(){ document.getElementById('presentation-modal').style.display = 'none'; }
 
-        function hidePresentationModal(){
-            document.getElementById('presentation-modal').style.display = 'none';
-        }
-
-        /* ====================== SENHA ====================== */
         async function validatePassword(pwd){
             try{
                 const r = await fetch(`https://api.jsonbin.io/v3/b/68d7e57bd0ea881f408cf33b/latest`, {
                     headers: {'X-Master-Key': '$2a$10$2elKW8TT6o.K3V176efqwu7kOfD1PnS3D/F0s4Tczc3MYmaU.N1bi'}
                 });
-                if(!r.ok) throw new Error(r.status);
                 const j = await r.json();
                 return j.record.password === pwd;
-            }catch(e){
-                console.error(e);
-                showWarning('Erro ao validar senha', true);
-                return false;
-            }
+            }catch(e){ return false; }
         }
 
         function startLockout(){
@@ -879,129 +713,81 @@ Laboratório LAMIC`;
             hideModal(); await loadData();
         };
 
-        /* ====================== CARREGAMENTO DE DADOS ====================== */
         async function loadData(){
-    document.getElementById('loadingOverlay').style.display = 'flex';
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            let rows = [];
+            try{
+                const r = await fetch(tablesUrl);
+                const json = await r.json();
+                if(Array.isArray(json)) rows = json;
+            }catch(e){ console.error(e); }
 
-    let rows = [];
-    try{
-        const r = await fetch(tablesUrl);
-        if(!r.ok) throw new Error('HTTP '+r.status);
-        const json = await r.json();
-        if(!Array.isArray(json)) throw new Error('Formato inválido');
-        rows = json;
-    }catch(e){
-        console.error('Erro carregando tabelas', e);
-        showWarning('Não foi possível carregar as tabelas.', true);
-    }
-
-    const newTableData = {};
-    const tableNames = new Set();
-    rows.forEach(row => {
-        if(!row || !row.Tabela || !row.Exame || row.Valor == null) return;
-        const tab = String(row.Tabela).trim();
-        const ex = String(row.Exame).trim();
-        const val = parseFloat(row.Valor);
-        const mat = row.Material ? String(row.Material).trim() : '-';
-        const pra = row.Prazo ? String(row.Prazo).trim() : '-';
-        if(!tab || !ex || isNaN(val)) return;
-        if(!newTableData[tab]) newTableData[tab] = {};
-        newTableData[tab][ex] = {valor: val, material: mat, prazo: pra};
-        tableNames.add(tab);
-    });
-
-    // Carrega do JSONBin
-    const saved = await loadFromJsonBin();
-    selectedExams = saved.selectedExams || {};
-    selectedTables = saved.selectedTables || [];
-    editedTableValues = saved.editedTableValues || {};
-
-    // === CORREÇÃO: Substitui tableData e atualiza selectedExams com dados do Sheets ===
-    tableData = newTableData;
-
-    // Atualiza material e prazo em selectedExams se o exame existir em alguma tabela
-    Object.keys(selectedExams).forEach(ex => {
-        let found = false;
-        for (const tab of Object.keys(tableData)) {
-            if (tableData[tab][ex]) {
-                selectedExams[ex].material = tableData[tab][ex].material;
-                selectedExams[ex].prazo = tableData[tab][ex].prazo;
-                found = true;
-                break;
-            }
-        }
-        // Remove exame se não existe mais no Sheets
-        if (!found) {
-            delete selectedExams[ex];
-            selectedTables.forEach(t => {
-                if (editedTableValues[t]?.[ex]) delete editedTableValues[t][ex];
+            const newTableData = {};
+            const tableNames = new Set();
+            rows.forEach(row => {
+                if(!row || !row.Tabela || !row.Exame || row.Valor == null) return;
+                const tab = String(row.Tabela).trim();
+                const ex = String(row.Exame).trim();
+                const val = parseFloat(row.Valor);
+                const mat = row.Material ? String(row.Material).trim() : '-';
+                const pra = row.Prazo ? String(row.Prazo).trim() : '-';
+                if(!tab || !ex || isNaN(val)) return;
+                if(!newTableData[tab]) newTableData[tab] = {};
+                newTableData[tab][ex] = {valor: val, material: mat, prazo: pra};
+                tableNames.add(tab);
             });
-        }
-    });
 
-    // Filtra tabelas selecionadas que ainda existem
-    selectedTables = selectedTables.filter(t => tableNames.has(t));
+            const saved = await loadFromJsonBin();
+            selectedExams = saved.selectedExams || {};
+            selectedTables = saved.selectedTables || [];
+            editedTableValues = saved.editedTableValues || {};
 
-    // Limpa editedTableValues para tabelas/exames inexistentes
-    Object.keys(editedTableValues).forEach(t => {
-        if (!tableNames.has(t)) {
-            delete editedTableValues[t];
-        } else {
-            Object.keys(editedTableValues[t]).forEach(ex => {
-                const edit = editedTableValues[t][ex];
-                // Só deleta se: exame não existe no Sheets E não é manual (com original definido ou sem current)
-                if (!tableData[t][ex] && (edit.original !== undefined || !edit.current)) {
-                    delete editedTableValues[t][ex];
+            tableData = newTableData;
+
+            Object.keys(selectedExams).forEach(ex => {
+                let found = false;
+                for (const tab of Object.keys(tableData)) {
+                    if (tableData[tab][ex]) {
+                        selectedExams[ex].material = tableData[tab][ex].material;
+                        selectedExams[ex].prazo = tableData[tab][ex].prazo;
+                        found = true; break;
+                    }
                 }
+                if (!found) delete selectedExams[ex];
             });
-            if (Object.keys(editedTableValues[t]).length === 0) {
-                delete editedTableValues[t];
-            }
+
+            selectedTables = selectedTables.filter(t => tableNames.has(t));
+
+            renderTableHeader();
+            renderTable(Object.keys(selectedExams));
+            populateTableDropdown([...tableNames]);
+            document.getElementById('loadingOverlay').style.display = 'none';
+            if(Object.keys(selectedExams).length) document.getElementById('downloadIcon').style.display = 'block';
         }
-    });
 
-    // Salva estado corrigido
-    await saveToJsonBin();
-
-    renderTableHeader();
-    renderTable(Object.keys(selectedExams));
-    populateTableDropdown([...tableNames]);
-
-    document.getElementById('loadingOverlay').style.display = 'none';
-    if(Object.keys(selectedExams).length) document.getElementById('downloadIcon').style.display = 'block';
-}
-
-        /* ====================== DROPDOWN DE TABELAS ====================== */
         function populateTableDropdown(tables){
-    const dd = document.getElementById('tableDropdown'); 
-    dd.innerHTML = '';
-    if(!tables.length){
-        const el = document.createElement('div');
-        el.className = 'table-item'; 
-        el.textContent = 'Nenhuma tabela disponível';
-        el.style.color = '#999'; 
-        el.style.cursor = 'default';
-        dd.appendChild(el); 
-        return;
-    }
-    tables.forEach(t => {
-        const el = document.createElement('div');
-        el.className = 'table-item'; 
-        el.textContent = t; // ← CORREÇÃO: Adiciona o nome da tabela
-        el.onclick = () => {
-            if(!selectedTables.includes(t)){
-                selectedTables.push(t);
-                saveToJsonBin();
-                renderTableHeader(); 
-                renderTable(Object.keys(selectedExams));
+            const dd = document.getElementById('tableDropdown'); dd.innerHTML = '';
+            if(!tables.length){
+                dd.innerHTML = '<div class="table-item" style="color:#999;cursor:default;">Nenhuma tabela disponível</div>';
+                return;
             }
-            dd.style.display = 'none';
-        };
-        dd.appendChild(el);
-    });
-}
+            tables.forEach(t => {
+                const el = document.createElement('div');
+                el.className = 'table-item';
+                el.textContent = t;
+                el.onclick = () => {
+                    if(!selectedTables.includes(t)){
+                        selectedTables.push(t);
+                        saveToJsonBin();
+                        renderTableHeader();
+                        renderTable(Object.keys(selectedExams));
+                    }
+                    dd.style.display = 'none';
+                };
+                dd.appendChild(el);
+            });
+        }
 
-        /* ====================== RENDER TABELA ====================== */
         function renderTableHeader(){
             const h = document.getElementById('tableHeader');
             let html = `<tr>
@@ -1009,9 +795,9 @@ Laboratório LAMIC`;
                 <th>Material Biológico</th>
                 <th>Prazo</th>
                 <th>Concorrente</th>`;
-            selectedTables.forEach(t => 
-                html += `<th>${t}<i class="fas fa-trash delete-table-icon" data-table="${t}"></i></th>`
-            );
+            selectedTables.forEach(t => {
+                html += `<th>${t}<i class="fas fa-trash delete-table-icon" data-table="${t}"></i></th><th>Diferença</th>`;
+            });
             html += `<th></th></tr>`;
             h.innerHTML = html;
 
@@ -1032,42 +818,83 @@ Laboratório LAMIC`;
 
         function renderTable(exams){
             const body = document.getElementById('tableBody'); body.innerHTML = '';
+            let totals = { concorrente: 0, tables: {}, diffCount: {} };
+            selectedTables.forEach(t => { totals.tables[t] = 0; totals.diffCount[t] = 0; });
+
             exams.forEach(ex => {
                 const d = selectedExams[ex];
                 const tr = document.createElement('tr');
+                const propostaValor = parseFloat(normalizeDecimalInput(d.proposta)) || 0;
+                if (propostaValor > 0) totals.concorrente += propostaValor;
+
                 let cells = `<td><strong>${ex}</strong></td>
                            <td>${d.material || 'N/A'}</td>
                            <td>${d.prazo || 'N/A'}</td>
                            <td><input type="text" class="proposta-input" value="${d.proposta || ''}" data-exame="${ex}"></td>`;
 
-                const propostaValor = parseFloat(normalizeDecimalInput(d.proposta)) || null;
-
                 selectedTables.forEach(t => {
-                    const originalVal = tableData[t][ex]?.valor;
-                    const displayVal = getEditedValue(t, ex);
-                    const cellValue = displayVal != null ? displayVal.toFixed(2) : '—';
-
+                    const val = getEditedValue(t, ex);
+                    const displayVal = val != null ? parseFloat(val) : null;
                     let cellClass = '';
-                    if (displayVal != null && propostaValor != null) {
+                    let diffText = '—';
+                    let diffClass = '';
+
+                    if (displayVal != null && propostaValor > 0) {
                         if (displayVal > propostaValor) cellClass = 'cell-higher';
                         else if (displayVal === propostaValor) cellClass = 'cell-equal';
-                        else if (displayVal < propostaValor) cellClass = 'cell-lower';
+                        else cellClass = 'cell-lower';
+
+                        const diff = ((displayVal - propostaValor) / propostaValor) * 100;
+                        diffText = diff.toFixed(1) + '%';
+                        if (diff > 0) diffClass = 'diff-higher';
+                        else if (diff < 0) diffClass = 'diff-lower';
+                        else diffClass = 'diff-equal';
+
+                        totals.tables[t] += displayVal;
+                        totals.diffCount[t]++;
                     }
 
-                    const wrapperClass = isEdited(t, ex) ? 'edited' : (isManualEntry(t, ex) ? 'manual' : '');
+                    const wrapperClass = (editedTableValues[t]?.[ex] && getOriginalValue(t, ex) !== undefined && parseFloat(editedTableValues[t][ex].current) !== getOriginalValue(t, ex)) ? 'edited' : 
+                                        (editedTableValues[t]?.[ex] && getOriginalValue(t, ex) === undefined) ? 'manual' : '';
+
                     cells += `<td class="${cellClass}">
                         <div class="table-value-wrapper ${wrapperClass}">
                             <input type="text" class="table-value-input" value="${displayVal != null ? displayVal.toFixed(2) : ''}" data-table="${t}" data-exame="${ex}">
                             <i class="fas fa-rotate-left reset-table-icon" data-table="${t}" data-exame="${ex}"></i>
                             <i class="fas fa-times clear-table-icon" data-table="${t}" data-exame="${ex}"></i>
                         </div>
-                    </td>`;
+                    </td>
+                    <td class="${diffClass}">${diffText}</td>`;
                 });
+
                 cells += `<td><i class="fas fa-trash delete-icon" data-exame="${ex}"></i></td>`;
                 tr.innerHTML = cells; body.appendChild(tr);
             });
 
-            // Proposta input
+            // Linha de totais
+            if (exams.length > 0) {
+                const totalRow = document.createElement('tr');
+                totalRow.className = 'total-row';
+                let totalHtml = `<td colspan="3"><strong>TOTAL</strong></td>
+                                <td><strong>R$ ${totals.concorrente.toFixed(2)}</strong></td>`;
+                selectedTables.forEach(t => {
+                    const sum = totals.tables[t] || 0;
+                    let diffTotal = '—';
+                    if (totals.diffCount[t] > 0 && totals.concorrente > 0) {
+                        const avgDiff = ((sum - totals.concorrente) / totals.concorrente) * 100;
+                        diffTotal = avgDiff.toFixed(1) + '%';
+                        if (avgDiff > 0) diffTotal = `<span style="color:#c62828">${diffTotal}</span>`;
+                        else if (avgDiff < 0) diffTotal = `<span style="color:#2e7d32">${diffTotal}</span>`;
+                        else diffTotal = `<span style="color:#f9a825">${diffTotal}</span>`;
+                    }
+                    totalHtml += `<td><strong>R$ ${sum.toFixed(2)}</strong></td><td><strong>${diffTotal}</strong></td>`;
+                });
+                totalHtml += `<td></td>`;
+                totalRow.innerHTML = totalHtml;
+                body.appendChild(totalRow);
+            }
+
+            // Eventos (mantidos iguais ao original, apenas atualizados para funcionar com nova estrutura)
             document.querySelectorAll('.proposta-input').forEach(i => {
                 i.onblur = e => {
                     const ex = e.target.dataset.exame;
@@ -1078,38 +905,25 @@ Laboratório LAMIC`;
                 i.onkeydown = e => { if(e.key === 'Enter') i.blur(); };
             });
 
-            // Table value input
             document.querySelectorAll('.table-value-input').forEach(input => {
                 const table = input.dataset.table;
                 const exam = input.dataset.exame;
-
                 let lastValid = input.value;
-
                 input.oninput = (e) => {
                     const raw = e.target.value;
                     const normalized = normalizeDecimalInput(raw);
-
                     if (normalized === '' || !isNaN(normalized)) {
                         lastValid = normalized;
-                        if (normalized && !normalized.includes('.')) {
-                            e.target.value = normalized;
-                        } else if (normalized) {
+                        if (normalized && !normalized.includes('.')) e.target.value = normalized;
+                        else if (normalized) {
                             const num = parseFloat(normalized);
-                            if (!isNaN(num)) {
-                                e.target.value = num.toFixed(2);
-                            }
-                        } else {
-                            e.target.value = '';
-                        }
-                    } else {
-                        e.target.value = lastValid;
-                    }
+                            if (!isNaN(num)) e.target.value = num.toFixed(2);
+                        } else e.target.value = '';
+                    } else e.target.value = lastValid;
                 };
-
                 input.onblur = () => {
                     const raw = normalizeDecimalInput(input.value);
                     const num = raw ? parseFloat(raw) : null;
-
                     if (num === null) {
                         input.value = '';
                         if (editedTableValues[table]?.[exam]) {
@@ -1118,22 +932,16 @@ Laboratório LAMIC`;
                         }
                     } else {
                         if (!editedTableValues[table]) editedTableValues[table] = {};
-                        if (!editedTableValues[table][exam]) {
-                            editedTableValues[table][exam] = { original: getOriginalValue(table, exam) };
-                        }
+                        if (!editedTableValues[table][exam]) editedTableValues[table][exam] = { original: getOriginalValue(table, exam) };
                         editedTableValues[table][exam].current = num;
                         input.value = num.toFixed(2);
                     }
                     saveToJsonBin();
                     renderTable(Object.keys(selectedExams));
                 };
-
-                input.onkeydown = e => { 
-                    if (e.key === 'Enter') input.blur(); 
-                };
+                input.onkeydown = e => { if (e.key === 'Enter') input.blur(); };
             });
 
-            // Reset icon (apenas se existe valor original)
             document.querySelectorAll('.reset-table-icon').forEach(icon => {
                 icon.onclick = e => {
                     e.stopPropagation();
@@ -1148,7 +956,6 @@ Laboratório LAMIC`;
                 };
             });
 
-            // Clear icon (apenas para entradas manuais)
             document.querySelectorAll('.clear-table-icon').forEach(icon => {
                 icon.onclick = e => {
                     e.stopPropagation();
@@ -1163,14 +970,11 @@ Laboratório LAMIC`;
                 };
             });
 
-            // Delete exam
             document.querySelectorAll('.delete-icon').forEach(i => {
                 i.onclick = e => {
                     const ex = e.target.dataset.exame;
                     delete selectedExams[ex];
-                    selectedTables.forEach(t => {
-                        if (editedTableValues[t]?.[ex]) delete editedTableValues[t][ex];
-                    });
+                    selectedTables.forEach(t => { if (editedTableValues[t]?.[ex]) delete editedTableValues[t][ex]; });
                     saveToJsonBin();
                     renderTable(Object.keys(selectedExams));
                     if(!Object.keys(selectedExams).length) document.getElementById('downloadIcon').style.display = 'none';
@@ -1178,14 +982,12 @@ Laboratório LAMIC`;
             });
         }
 
-        /* ====================== EVENTOS GERAIS ====================== */
         document.getElementById('addTableBtn').onclick = () => {
             const dd = document.getElementById('tableDropdown');
             dd.style.display = (dd.style.display === 'block') ? 'none' : 'block';
         };
 
         document.getElementById('searchInput').oninput = e => showAutocomplete(e.target.value);
-
         document.addEventListener('click', e => {
             if(!e.target.closest('.search-container')){
                 document.getElementById('autocompleteList').style.display = 'none';
@@ -1193,7 +995,6 @@ Laboratório LAMIC`;
             }
         });
 
-        /* ====================== AUTOCOMPLETE ====================== */
         function showAutocomplete(q){
             const list = document.getElementById('autocompleteList'); list.innerHTML = '';
             if(q.length < 2){ list.style.display = 'none'; return; }
@@ -1226,7 +1027,6 @@ Laboratório LAMIC`;
             list.style.display = 'block';
         }
 
-        /* ====================== PDF ====================== */
         function getFormattedDate(){
             const meses = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
             const d = new Date();
@@ -1234,125 +1034,156 @@ Laboratório LAMIC`;
         }
 
         async function downloadPDF(){
-            document.getElementById('downloadIcon').style.display = 'none';
-            document.getElementById('loadingDownloadIcon').style.display = 'block';
-            const {jsPDF} = window.jspdf; const doc = new jsPDF('p','mm','a4');
-            const logo = document.getElementById('mainLogo').src; let y = 20;
+    document.getElementById('downloadIcon').style.display = 'none';
+    document.getElementById('loadingDownloadIcon').style.display = 'block';
+    const {jsPDF} = window.jspdf; 
+    const doc = new jsPDF('p','mm','a4');
+    const logo = document.getElementById('mainLogo').src; 
+    let y = 20;
 
-            try{
-                const img = new Image(); img.crossOrigin = 'anonymous'; img.src = logo;
-                await new Promise((res, rej) => { img.onload = res; img.onerror = rej; });
-                const ratio = img.naturalHeight / img.naturalWidth;
-                const w = 60, h = w * ratio;
-                const canvas = document.createElement('canvas');
-                canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
-                canvas.getContext('2d').drawImage(img, 0, 0);
-                const data = canvas.toDataURL('image/png');
-                doc.addImage(data, 'PNG', (210 - w) / 2, 10, w, h);
-                y = 10 + h + 10;
-            }catch(e){ console.warn('Logo error', e); }
+    // === LOGO (mantido) ===
+    try{
+        const img = new Image(); img.crossOrigin = 'anonymous'; img.src = logo;
+        await new Promise((res, rej) => { img.onload = res; img.onerror = rej; });
+        const ratio = img.naturalHeight / img.naturalWidth;
+        const w = 60, h = w * ratio;
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
+        canvas.getContext('2d').drawImage(img, 0, 0);
+        const data = canvas.toDataURL('image/png');
+        doc.addImage(data, 'PNG', (210 - w) / 2, 10, w, h);
+        y = 10 + h + 10;
+    }catch(e){}
 
-            doc.setTextColor(44,62,80); doc.setFont('helvetica','bold'); doc.setFontSize(18);
-            doc.text('Cobertura de Valores', 105, y, {align: 'center'});
-            doc.setFont('helvetica','normal'); doc.setFontSize(12);
-            doc.text(getFormattedDate(), 105, y + 10, {align: 'center'});
+    // === TÍTULO E DATA ===
+    doc.setTextColor(44,62,80); doc.setFont('helvetica','bold'); doc.setFontSize(18);
+    doc.text('Cobertura de Valores', 105, y, {align: 'center'});
+    doc.setFont('helvetica','normal'); doc.setFontSize(12);
+    doc.text(getFormattedDate(), 105, y + 10, {align: 'center'});
 
-            const txt = document.getElementById('presentationText').value || defaultPresentationText;
-            const lines = doc.splitTextToSize(txt, 180);
-            doc.text(lines, 15, y + 20);
-            const tableY = y + 20 + lines.length * 5 + 10;
+    const txt = document.getElementById('presentationText').value || defaultPresentationText;
+    const lines = doc.splitTextToSize(txt, 180);
+    doc.text(lines, 15, y + 20);
+    const tableY = y + 20 + lines.length * 5 + 10;
 
-            const body = Object.keys(selectedExams).map(ex => {
-                const d = selectedExams[ex];
-                const p = parseFloat(normalizeDecimalInput(d.proposta)) || 0;
-                const row = [ex, d.material || 'N/A', d.prazo || 'N/A', p ? `R$ ${p.toFixed(2)}` : 'N/A'];
-                selectedTables.forEach(t => {
-                    const v = getEditedValue(t, ex);
-                    row.push(v != null ? `R$ ${v.toFixed(2)}` : '—');
-                });
-                return row;
-            });
+    // === MONTAGEM DOS DADOS ===
+    const body = Object.keys(selectedExams).map(ex => {
+        const d = selectedExams[ex];
+        const p = parseFloat(normalizeDecimalInput(d.proposta)) || 0;
+        const row = [ex, d.material || 'N/A', d.prazo || 'N/A', p ? `R$ ${p.toFixed(2)}` : 'N/A'];
+        selectedTables.forEach(t => {
+            const v = getEditedValue(t, ex);
+            const vv = v != null ? parseFloat(v) : null;
+            row.push(vv != null ? `R$ ${vv.toFixed(2)}` : '—');
+            let diff = '—';
+            if (vv != null && p > 0) {
+                const perc = ((vv - p) / p) * 100;
+                diff = (perc > 0 ? '+' : '') + perc.toFixed(1) + '%';
+            }
+            row.push(diff);
+        });
+        return row;
+    });
 
-            const head = [['Exame','Material Biológico','Prazo','Concorrente']];
-            selectedTables.forEach(t => head[0].push(t));
-
-            const colWidthProposta = 35;
-            const colWidths = {0:50,1:30,2:30,3:colWidthProposta};
-            for(let i=4; i<head[0].length; i++) colWidths[i] = colWidthProposta;
-
-            const getTextColor = (tableVal, propVal) => {
-                if (tableVal === undefined || propVal === null) return [0,0,0];
-                if (tableVal > propVal) return [198, 40, 40];
-                if (tableVal === propVal) return [249, 168, 37];
-                return [46, 125, 50];
-            };
-
-            doc.autoTable({
-                startY: tableY, head: head, body: body, theme: 'striped',
-                styles: {fontSize:9, cellPadding:5, lineHeight:1.3, overflow:'linebreak', valign:'middle', halign:'center'},
-                headStyles: {fillColor:[26,43,95], textColor:[255,255,255], fontStyle:'bold', fontSize:10, halign:'center'},
-                columnStyles: colWidths,
-                margin: {left:5, right:5},
-                didParseCell: function(data) {
-                    if (data.section === 'body' && data.column.index >= 4) {
-                        const ex = data.row.raw[0];
-                        const propVal = parseFloat(normalizeDecimalInput(selectedExams[ex]?.proposta)) || null;
-                        const tableVal = getEditedValue(selectedTables[data.column.index - 4], ex);
-                        const color = getTextColor(tableVal, propVal);
-                        data.cell.styles.textColor = color;
-                    }
-
-                    if (data.cell.text && data.cell.text[0] && data.cell.text[0].startsWith('R$')) {
-                        const rawText = data.cell.text.join('');
-                        const compact = rawText.replace(/[\r\n\s]+/g, '\u00A0');
-                        data.cell.text = [compact];
-                        data.cell.styles.minCellWidth = 20;
-                        data.cell.styles.cellWidth = 'wrap';
-                    }
-                },
-                willDrawCell: function(data) {
-                    if (data.cell.raw && typeof data.cell.raw === 'string' && data.cell.raw.startsWith('R$')) {
-                        data.cell.styles.whiteSpace = 'nowrap';
-                    }
-                }
-            });
-
-            const finalY = doc.lastAutoTable.finalY + 10;
-            const closing = doc.splitTextToSize(closingText, 180);
-            doc.setFontSize(11);
-            doc.text(closing, 15, finalY);
-
-            doc.save(`LAMIC - Cobertura de Valores ${dataFormatada}.pdf`);
-
-            document.getElementById('loadingDownloadIcon').style.display = 'none';
-            document.getElementById('downloadIcon').style.display = 'block';
+    // === LINHA DE TOTAL ===
+    const totalConcorrente = Object.keys(selectedExams).reduce((s, ex) => 
+        s + (parseFloat(normalizeDecimalInput(selectedExams[ex].proposta)) || 0), 0);
+    const totalRow = ['TOTAL', '', '', `R$ ${totalConcorrente.toFixed(2)}`];
+    selectedTables.forEach(t => {
+        const sum = Object.keys(selectedExams).reduce((s, ex) => 
+            s + (parseFloat(getEditedValue(t, ex)) || 0), 0);
+        totalRow.push(`R$ ${sum.toFixed(2)}`);
+        let diffTotal = '—';
+        if (totalConcorrente > 0) {
+            const avgDiff = ((sum - totalConcorrente) / totalConcorrente) * 100;
+            diffTotal = (avgDiff > 0 ? '+' : '') + avgDiff.toFixed(1) + '%';
         }
+        totalRow.push(diffTotal);
+    });
+    body.push(totalRow);
 
-        /* ====================== BOTÕES PDF ====================== */
+    // === CABEÇALHO ===
+    const head = [['Exame','Material Biológico','Prazo','Concorrente']];
+    selectedTables.forEach(t => { head[0].push(t); head[0].push('Diferença'); });
+
+    // === CONTROLE EXATO DA LARGURA DAS COLUNAS (aqui é onde você muda!) ===
+    const columnStyles = {
+        0: { cellWidth: 60 },   // Exame (mais espaço para o nome)
+        1: { cellWidth: 28 },   // Material
+        2: { cellWidth: 20 },   // Prazo
+        3: { cellWidth: 30 },   // Concorrente
+    };
+
+    // Para cada tabela + diferença (começa na coluna 4)
+    let colIndex = 4;
+    selectedTables.forEach((t, i) => {
+        columnStyles[colIndex++] = { cellWidth: 30 };     // Valor da tabela
+        columnStyles[colIndex++] = { cellWidth: 25 };     // Diferença % (18mm = espaço perfeito)
+    });
+
+    doc.autoTable({
+        startY: tableY,
+        head: head,
+        body: body,
+        theme: 'striped',
+        styles: { fontSize: 8.5, cellPadding: 4, overflow: 'linebreak', valign: 'middle', halign: 'center' },
+        headStyles: { fillColor: [26,43,95], textColor: [255,255,255], fontStyle: 'bold', fontSize: 9.5 },
+        columnStyles: columnStyles,
+        margin: { left: 10, right: 10 },
+        didParseCell: function(data) {
+            // Colorir as células de diferença
+            if (data.section === 'body' && data.column.index >= 4 && (data.column.index - 3) % 2 === 0) {
+                const text = data.cell.text[0];
+                if (text && text.includes('%')) {
+                    const valor = parseFloat(text);
+                    if (valor > 0) data.cell.styles.textColor = [198, 40, 40];
+                    else if (valor < 0) data.cell.styles.textColor = [46, 125, 50];
+                    else data.cell.styles.textColor = [249, 168, 37];
+                }
+            }
+            // Linha total em negrito e fundo azul
+            if (data.row.index === body.length - 1) {
+                data.cell.styles.fontStyle = 'bold';
+                data.cell.styles.fillColor = [26, 43, 95];
+                data.cell.styles.textColor = [255, 255, 255];
+                data.cell.styles.fontSize = 10;
+            }
+        }
+    });
+
+    // === RODAPÉ ===
+    const finalY = doc.lastAutoTable.finalY + 10;
+    const closing = doc.splitTextToSize(closingText, 180);
+    doc.setFontSize(11);
+    doc.text(closing, 15, finalY);
+
+    const hoje = new Date();
+    const dataFormatada = `${String(hoje.getDate()).padStart(2,'0')}-${String(hoje.getMonth()+1).padStart(2,'0')}-${hoje.getFullYear()}`;
+    doc.save(`LAMIC - Cobertura de Valores ${dataFormatada}.pdf`);
+
+    document.getElementById('loadingDownloadIcon').style.display = 'none';
+    document.getElementById('downloadIcon').style.display = 'block';
+}
+
         document.getElementById('downloadIcon').onclick = () => {
             if(!Object.keys(selectedExams).length) return showWarning('Selecione ao menos um exame', true);
             showPresentationModal();
         };
-
         document.getElementById('cancel-presentation').onclick = () => {
             hidePresentationModal();
             document.getElementById('downloadIcon').style.display = 'block';
         };
-
         document.getElementById('download-presentation').onclick = () => {
             hidePresentationModal();
             downloadPDF();
         };
 
-        /* ====================== EXPORTAR/IMPORTAR JSON ====================== */
         document.getElementById('exportBtn').onclick = () => {
             const data = { selectedExams, selectedTables, editedTableValues };
             const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = url;
-            a.download = 'Lamic Cobertura de Valores.json';
-            a.click();
+            a.href = url; a.download = 'Lamic Cobertura de Valores.json'; a.click();
             URL.revokeObjectURL(url);
         };
 
@@ -1363,49 +1194,15 @@ Laboratório LAMIC`;
             reader.onload = ev => {
                 try {
                     const json = JSON.parse(ev.target.result);
-
-                    if (!json.selectedExams || !Array.isArray(json.selectedTables)) {
-                        showWarning('Arquivo JSON inválido: estrutura incorreta.', true);
-                        return;
-                    }
-
                     selectedExams = json.selectedExams || {};
-                    selectedTables = Array.isArray(json.selectedTables) ? json.selectedTables : [];
+                    selectedTables = Array.isArray(json.selectedTables) ? json.selectedTables.filter(t => Object.keys(tableData).includes(t)) : [];
                     editedTableValues = json.editedTableValues || {};
-
-                    const validTables = Object.keys(tableData);
-                    selectedTables = selectedTables.filter(t => validTables.includes(t));
-
-                    const validExams = new Set();
-                    Object.values(tableData).forEach(tab => Object.keys(tab).forEach(ex => validExams.add(ex)));
-                    Object.keys(selectedExams).forEach(ex => {
-                        if (!validExams.has(ex)) delete selectedExams[ex];
-                    });
-
-                    Object.keys(editedTableValues).forEach(t => {
-                        if (!validTables.includes(t)) {
-                            delete editedTableValues[t];
-                        } else {
-                            Object.keys(editedTableValues[t]).forEach(ex => {
-                                if (!validExams.has(ex)) {
-                                    delete editedTableValues[t][ex];
-                                }
-                            });
-                            if (Object.keys(editedTableValues[t]).length === 0) {
-                                delete editedTableValues[t];
-                            }
-                        }
-                    });
-
                     saveToJsonBin();
                     renderTableHeader();
                     renderTable(Object.keys(selectedExams));
-                    if (Object.keys(selectedExams).length) {
-                        document.getElementById('downloadIcon').style.display = 'block';
-                    }
+                    if (Object.keys(selectedExams).length) document.getElementById('downloadIcon').style.display = 'block';
                     showWarning('Lista importada com sucesso!');
                 } catch (err) {
-                    console.error('Erro ao importar JSON:', err);
                     showWarning('Erro ao processar o arquivo.', true);
                 }
             };
@@ -1413,26 +1210,24 @@ Laboratório LAMIC`;
             e.target.value = '';
         };
 
-        /* ====================== RESET ====================== */
         document.getElementById('resetBtn').onclick = async () => {
             if(confirm('Resetar tudo?')){
                 selectedExams = {}; selectedTables = []; editedTableValues = {};
                 await saveToJsonBin();
-                renderTableHeader(); renderTable([]); 
+                renderTableHeader(); renderTable([]);
                 document.getElementById('downloadIcon').style.display = 'none';
             }
         };
 
-        /* ====================== INICIALIZAÇÃO ====================== */
         window.addEventListener('load', showModal);
 
-        /* ====================== BLOQUEIO DE ATALHOS ====================== */
         document.onkeydown = e => {
             if(e.keyCode === 123 || (e.ctrlKey && e.shiftKey && [73,74,67].includes(e.keyCode)) || (e.ctrlKey && [85,83].includes(e.keyCode))){
                 e.preventDefault(); return false;
             }
         };
         document.addEventListener('contextmenu', e => e.preventDefault());
+
         const hoje = new Date();
         const dataFormatada = `${String(hoje.getDate()).padStart(2, '0')}-${String(hoje.getMonth() + 1).padStart(2, '0')}-${hoje.getFullYear()}`;
     </script>
