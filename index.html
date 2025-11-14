@@ -789,198 +789,213 @@ Laboratório LAMIC`;
         }
 
         function renderTableHeader(){
-            const h = document.getElementById('tableHeader');
-            let html = `<tr>
-                <th>Exame</th>
-                <th>Material Biológico</th>
-                <th>Prazo</th>
-                <th>Concorrente</th>`;
-            selectedTables.forEach(t => {
-                html += `<th>${t}<i class="fas fa-trash delete-table-icon" data-table="${t}"></i></th><th>Diferença</th>`;
-            });
-            html += `<th></th></tr>`;
-            h.innerHTML = html;
+    const h = document.getElementById('tableHeader');
+    let html = `<tr>
+        <th>Exame</th>
+        <th>Material Biológico</th>
+        <th>Prazo</th>
+        <th>Concorrente</th>`;
+    selectedTables.forEach(t => {
+        html += `<th>${t}<i class="fas fa-trash delete-table-icon" data-table="${t}"></i></th>`;
+    });
+    html += `<th></th></tr>`;
+    h.innerHTML = html;
 
-            document.querySelectorAll('.delete-table-icon').forEach(icon => {
-                icon.onclick = e => {
-                    e.stopPropagation();
-                    const tableName = e.target.dataset.table;
-                    if(confirm(`Remover a tabela "${tableName}"?`)){
-                        selectedTables = selectedTables.filter(t => t !== tableName);
-                        delete editedTableValues[tableName];
-                        saveToJsonBin();
-                        renderTableHeader();
-                        renderTable(Object.keys(selectedExams));
-                    }
-                };
-            });
-        }
+    document.querySelectorAll('.delete-table-icon').forEach(icon => {
+        icon.onclick = e => {
+            e.stopPropagation();
+            const tableName = e.target.dataset.table;
+            if(confirm(`Remover a tabela "${tableName}"?`)){
+                selectedTables = selectedTables.filter(t => t !== tableName);
+                delete editedTableValues[tableName];
+                saveToJsonBin();
+                renderTableHeader();
+                renderTable(Object.keys(selectedExams));
+            }
+        };
+    });
+}
 
-        function renderTable(exams){
-            const body = document.getElementById('tableBody'); body.innerHTML = '';
-            let totals = { concorrente: 0, tables: {}, diffCount: {} };
-            selectedTables.forEach(t => { totals.tables[t] = 0; totals.diffCount[t] = 0; });
 
-            exams.forEach(ex => {
-                const d = selectedExams[ex];
-                const tr = document.createElement('tr');
-                const propostaValor = parseFloat(normalizeDecimalInput(d.proposta)) || 0;
-                if (propostaValor > 0) totals.concorrente += propostaValor;
+function renderTable(exams){
+    const body = document.getElementById('tableBody'); body.innerHTML = '';
+    let totals = { concorrente: 0, tables: {} };
+    selectedTables.forEach(t => { totals.tables[t] = 0; });
 
-                let cells = `<td><strong>${ex}</strong></td>
-                           <td>${d.material || 'N/A'}</td>
-                           <td>${d.prazo || 'N/A'}</td>
-                           <td><input type="text" class="proposta-input" value="${d.proposta || ''}" data-exame="${ex}"></td>`;
+    let stats = { above: 0, below: 0, equal: 0 }; // Contadores para resumo
 
-                selectedTables.forEach(t => {
-                    const val = getEditedValue(t, ex);
-                    const displayVal = val != null ? parseFloat(val) : null;
-                    let cellClass = '';
-                    let diffText = '—';
-                    let diffClass = '';
+    exams.forEach(ex => {
+        const d = selectedExams[ex];
+        const tr = document.createElement('tr');
+        const propostaValor = parseFloat(normalizeDecimalInput(d.proposta)) || 0;
+        if (propostaValor > 0) totals.concorrente += propostaValor;
 
-                    if (displayVal != null && propostaValor > 0) {
-                        if (displayVal > propostaValor) cellClass = 'cell-higher';
-                        else if (displayVal === propostaValor) cellClass = 'cell-equal';
-                        else cellClass = 'cell-lower';
+        let cells = `<td><strong>${ex}</strong></td>
+                   <td>${d.material || 'N/A'}</td>
+                   <td>${d.prazo || 'N/A'}</td>
+                   <td><input type="text" class="proposta-input" value="${d.proposta || ''}" data-exame="${ex}"></td>`;
 
-                        const diff = ((displayVal - propostaValor) / propostaValor) * 100;
-                        diffText = diff.toFixed(1) + '%';
-                        if (diff > 0) diffClass = 'diff-higher';
-                        else if (diff < 0) diffClass = 'diff-lower';
-                        else diffClass = 'diff-equal';
+        selectedTables.forEach(t => {
+            const val = getEditedValue(t, ex);
+            const displayVal = val != null ? parseFloat(val) : null;
+            let cellClass = '';
 
-                        totals.tables[t] += displayVal;
-                        totals.diffCount[t]++;
-                    }
-
-                    const wrapperClass = (editedTableValues[t]?.[ex] && getOriginalValue(t, ex) !== undefined && parseFloat(editedTableValues[t][ex].current) !== getOriginalValue(t, ex)) ? 'edited' : 
-                                        (editedTableValues[t]?.[ex] && getOriginalValue(t, ex) === undefined) ? 'manual' : '';
-
-                    cells += `<td class="${cellClass}">
-                        <div class="table-value-wrapper ${wrapperClass}">
-                            <input type="text" class="table-value-input" value="${displayVal != null ? displayVal.toFixed(2) : ''}" data-table="${t}" data-exame="${ex}">
-                            <i class="fas fa-rotate-left reset-table-icon" data-table="${t}" data-exame="${ex}"></i>
-                            <i class="fas fa-times clear-table-icon" data-table="${t}" data-exame="${ex}"></i>
-                        </div>
-                    </td>
-                    <td class="${diffClass}">${diffText}</td>`;
-                });
-
-                cells += `<td><i class="fas fa-trash delete-icon" data-exame="${ex}"></i></td>`;
-                tr.innerHTML = cells; body.appendChild(tr);
-            });
-
-            // Linha de totais
-            if (exams.length > 0) {
-                const totalRow = document.createElement('tr');
-                totalRow.className = 'total-row';
-                let totalHtml = `<td colspan="3"><strong>TOTAL</strong></td>
-                                <td><strong>R$ ${totals.concorrente.toFixed(2)}</strong></td>`;
-                selectedTables.forEach(t => {
-                    const sum = totals.tables[t] || 0;
-                    let diffTotal = '—';
-                    if (totals.diffCount[t] > 0 && totals.concorrente > 0) {
-                        const avgDiff = ((sum - totals.concorrente) / totals.concorrente) * 100;
-                        diffTotal = avgDiff.toFixed(1) + '%';
-                        if (avgDiff > 0) diffTotal = `<span style="color:#c62828">${diffTotal}</span>`;
-                        else if (avgDiff < 0) diffTotal = `<span style="color:#2e7d32">${diffTotal}</span>`;
-                        else diffTotal = `<span style="color:#f9a825">${diffTotal}</span>`;
-                    }
-                    totalHtml += `<td><strong>R$ ${sum.toFixed(2)}</strong></td><td><strong>${diffTotal}</strong></td>`;
-                });
-                totalHtml += `<td></td>`;
-                totalRow.innerHTML = totalHtml;
-                body.appendChild(totalRow);
+            if (displayVal != null && propostaValor > 0) {
+                if (displayVal > propostaValor) {
+                    cellClass = 'cell-higher';
+                    stats.above++;
+                } else if (displayVal === propostaValor) {
+                    cellClass = 'cell-equal';
+                    stats.equal++;
+                } else {
+                    cellClass = 'cell-lower';
+                    stats.below++;
+                }
+                totals.tables[t] += displayVal;
             }
 
-            // Eventos (mantidos iguais ao original, apenas atualizados para funcionar com nova estrutura)
-            document.querySelectorAll('.proposta-input').forEach(i => {
-                i.onblur = e => {
-                    const ex = e.target.dataset.exame;
-                    selectedExams[ex].proposta = normalizeDecimalInput(e.target.value);
-                    saveToJsonBin();
-                    renderTable(Object.keys(selectedExams));
-                };
-                i.onkeydown = e => { if(e.key === 'Enter') i.blur(); };
-            });
+            const wrapperClass = (editedTableValues[t]?.[ex] && getOriginalValue(t, ex) !== undefined && parseFloat(editedTableValues[t][ex].current) !== getOriginalValue(t, ex)) ? 'edited' : 
+                                (editedTableValues[t]?.[ex] && getOriginalValue(t, ex) === undefined) ? 'manual' : '';
 
-            document.querySelectorAll('.table-value-input').forEach(input => {
-                const table = input.dataset.table;
-                const exam = input.dataset.exame;
-                let lastValid = input.value;
-                input.oninput = (e) => {
-                    const raw = e.target.value;
-                    const normalized = normalizeDecimalInput(raw);
-                    if (normalized === '' || !isNaN(normalized)) {
-                        lastValid = normalized;
-                        if (normalized && !normalized.includes('.')) e.target.value = normalized;
-                        else if (normalized) {
-                            const num = parseFloat(normalized);
-                            if (!isNaN(num)) e.target.value = num.toFixed(2);
-                        } else e.target.value = '';
-                    } else e.target.value = lastValid;
-                };
-                input.onblur = () => {
-                    const raw = normalizeDecimalInput(input.value);
-                    const num = raw ? parseFloat(raw) : null;
-                    if (num === null) {
-                        input.value = '';
-                        if (editedTableValues[table]?.[exam]) {
-                            delete editedTableValues[table][exam];
-                            if (Object.keys(editedTableValues[table]).length === 0) delete editedTableValues[table];
-                        }
-                    } else {
-                        if (!editedTableValues[table]) editedTableValues[table] = {};
-                        if (!editedTableValues[table][exam]) editedTableValues[table][exam] = { original: getOriginalValue(table, exam) };
-                        editedTableValues[table][exam].current = num;
-                        input.value = num.toFixed(2);
-                    }
-                    saveToJsonBin();
-                    renderTable(Object.keys(selectedExams));
-                };
-                input.onkeydown = e => { if (e.key === 'Enter') input.blur(); };
-            });
+            cells += `<td class="${cellClass}">
+                <div class="table-value-wrapper ${wrapperClass}">
+                    <input type="text" class="table-value-input" value="${displayVal != null ? displayVal.toFixed(2) : ''}" data-table="${t}" data-exame="${ex}">
+                    <i class="fas fa-rotate-left reset-table-icon" data-table="${t}" data-exame="${ex}"></i>
+                    <i class="fas fa-times clear-table-icon" data-table="${t}" data-exame="${ex}"></i>
+                </div>
+            </td>`;
+        });
 
-            document.querySelectorAll('.reset-table-icon').forEach(icon => {
-                icon.onclick = e => {
-                    e.stopPropagation();
-                    const table = icon.dataset.table;
-                    const exam = icon.dataset.exame;
-                    if (editedTableValues[table]?.[exam]) {
-                        delete editedTableValues[table][exam];
-                        if (Object.keys(editedTableValues[table]).length === 0) delete editedTableValues[table];
-                        saveToJsonBin();
-                        renderTable(Object.keys(selectedExams));
-                    }
-                };
-            });
+        cells += `<td><i class="fas fa-trash delete-icon" data-exame="${ex}"></i></td>`;
+        tr.innerHTML = cells; body.appendChild(tr);
+    });
 
-            document.querySelectorAll('.clear-table-icon').forEach(icon => {
-                icon.onclick = e => {
-                    e.stopPropagation();
-                    const table = icon.dataset.table;
-                    const exam = icon.dataset.exame;
-                    if (editedTableValues[table]?.[exam]) {
-                        delete editedTableValues[table][exam];
-                        if (Object.keys(editedTableValues[table]).length === 0) delete editedTableValues[table];
-                        saveToJsonBin();
-                        renderTable(Object.keys(selectedExams));
-                    }
-                };
-            });
+    // Linha de totais (sem %)
+    if (exams.length > 0) {
+        const totalRow = document.createElement('tr');
+        totalRow.className = 'total-row';
+        let totalHtml = `<td colspan="3"><strong>TOTAL</strong></td>
+                        <td><strong>R$ ${totals.concorrente.toFixed(2)}</strong></td>`;
+        selectedTables.forEach(t => {
+            const sum = totals.tables[t] || 0;
+            totalHtml += `<td><strong>R$ ${sum.toFixed(2)}</strong></td>`;
+        });
+        totalHtml += `<td></td>`;
+        totalRow.innerHTML = totalHtml;
+        body.appendChild(totalRow);
+    }
 
-            document.querySelectorAll('.delete-icon').forEach(i => {
-                i.onclick = e => {
-                    const ex = e.target.dataset.exame;
-                    delete selectedExams[ex];
-                    selectedTables.forEach(t => { if (editedTableValues[t]?.[ex]) delete editedTableValues[t][ex]; });
-                    saveToJsonBin();
-                    renderTable(Object.keys(selectedExams));
-                    if(!Object.keys(selectedExams).length) document.getElementById('downloadIcon').style.display = 'none';
-                };
-            });
-        }
+    // === RESUMO ABAIXO DA TABELA ===
+    const summaryDiv = document.createElement('div');
+    summaryDiv.style.marginTop = '20px';
+    summaryDiv.style.padding = '16px';
+    summaryDiv.style.background = '#f8fbff';
+    summaryDiv.style.border = '1px solid #dee2e6';
+    summaryDiv.style.borderRadius = '12px';
+    summaryDiv.style.fontSize = '15px';
+    summaryDiv.style.textAlign = 'center';
+    summaryDiv.style.color = '#333';
+    summaryDiv.style.fontWeight = '600';
+    summaryDiv.innerHTML = `
+        <span style="color:#c62828;">${stats.above} acima</span> • 
+        <span style="color:#2e7d32;">${stats.below} abaixo</span> • 
+        <span style="color:#f9a825;">${stats.equal} igual(is)</span>
+    `;
+
+    // Remove resumo anterior se existir
+    const oldSummary = document.getElementById('comparison-summary');
+    if (oldSummary) oldSummary.remove();
+
+    summaryDiv.id = 'comparison-summary';
+    document.querySelector('.action-buttons').before(summaryDiv);
+
+    // === Eventos (iguais ao original) ===
+    document.querySelectorAll('.proposta-input').forEach(i => {
+        i.onblur = e => {
+            const ex = e.target.dataset.exame;
+            selectedExams[ex].proposta = normalizeDecimalInput(e.target.value);
+            saveToJsonBin();
+            renderTable(Object.keys(selectedExams));
+        };
+        i.onkeydown = e => { if(e.key === 'Enter') i.blur(); };
+    });
+
+    document.querySelectorAll('.table-value-input').forEach(input => {
+        const table = input.dataset.table;
+        const exam = input.dataset.exame;
+        let lastValid = input.value;
+        input.oninput = (e) => {
+            const raw = e.target.value;
+            const normalized = normalizeDecimalInput(raw);
+            if (normalized === '' || !isNaN(normalized)) {
+                lastValid = normalized;
+                if (normalized && !normalized.includes('.')) e.target.value = normalized;
+                else if (normalized) {
+                    const num = parseFloat(normalized);
+                    if (!isNaN(num)) e.target.value = num.toFixed(2);
+                } else e.target.value = '';
+            } else e.target.value = lastValid;
+        };
+        input.onblur = () => {
+            const raw = normalizeDecimalInput(input.value);
+            const num = raw ? parseFloat(raw) : null;
+            if (num === null) {
+                input.value = '';
+                if (editedTableValues[table]?.[exam]) {
+                    delete editedTableValues[table][exam];
+                    if (Object.keys(editedTableValues[table]).length === 0) delete editedTableValues[table];
+                }
+            } else {
+                if (!editedTableValues[table]) editedTableValues[table] = {};
+                if (!editedTableValues[table][exam]) editedTableValues[table][exam] = { original: getOriginalValue(table, exam) };
+                editedTableValues[table][exam].current = num;
+                input.value = num.toFixed(2);
+            }
+            saveToJsonBin();
+            renderTable(Object.keys(selectedExams));
+        };
+        input.onkeydown = e => { if (e.key === 'Enter') input.blur(); };
+    });
+
+    document.querySelectorAll('.reset-table-icon').forEach(icon => {
+        icon.onclick = e => {
+            e.stopPropagation();
+            const table = icon.dataset.table;
+            const exam = icon.dataset.exame;
+            if (editedTableValues[table]?.[exam]) {
+                delete editedTableValues[table][exam];
+                if (Object.keys(editedTableValues[table]).length === 0) delete editedTableValues[table];
+                saveToJsonBin();
+                renderTable(Object.keys(selectedExams));
+            }
+        };
+    });
+
+    document.querySelectorAll('.clear-table-icon').forEach(icon => {
+        icon.onclick = e => {
+            e.stopPropagation();
+            const table = icon.dataset.table;
+            const exam = icon.dataset.exame;
+            if (editedTableValues[table]?.[exam]) {
+                delete editedTableValues[table][exam];
+                if (Object.keys(editedTableValues[table]).length === 0) delete editedTableValues[table];
+                saveToJsonBin();
+                renderTable(Object.keys(selectedExams));
+            }
+        };
+    });
+
+    document.querySelectorAll('.delete-icon').forEach(i => {
+        i.onclick = e => {
+            const ex = e.target.dataset.exame;
+            delete selectedExams[ex];
+            selectedTables.forEach(t => { if (editedTableValues[t]?.[ex]) delete editedTableValues[t][ex]; });
+            saveToJsonBin();
+            renderTable(Object.keys(selectedExams));
+            if(!Object.keys(selectedExams).length) document.getElementById('downloadIcon').style.display = 'none';
+        };
+    });
+}
 
         document.getElementById('addTableBtn').onclick = () => {
             const dd = document.getElementById('tableDropdown');
@@ -1033,115 +1048,156 @@ Laboratório LAMIC`;
             return `Juazeiro do Norte/CE, ${String(d.getDate()).padStart(2,'0')} de ${meses[d.getMonth()]} de ${d.getFullYear()}.`;
         }
 
-        async function downloadPDF(){
+        async function downloadPDF() {
     document.getElementById('downloadIcon').style.display = 'none';
     document.getElementById('loadingDownloadIcon').style.display = 'block';
-    const {jsPDF} = window.jspdf; 
-    const doc = new jsPDF('p','mm','a4');
-    const logo = document.getElementById('mainLogo').src; 
+    
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p', 'mm', 'a4');
+    const logo = document.getElementById('mainLogo').src;
     let y = 20;
 
-    // === LOGO (mantido) ===
-    try{
-        const img = new Image(); img.crossOrigin = 'anonymous'; img.src = logo;
+    // === LOGO ===
+    try {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.src = logo;
         await new Promise((res, rej) => { img.onload = res; img.onerror = rej; });
+        
         const ratio = img.naturalHeight / img.naturalWidth;
         const w = 60, h = w * ratio;
         const canvas = document.createElement('canvas');
-        canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
         canvas.getContext('2d').drawImage(img, 0, 0);
         const data = canvas.toDataURL('image/png');
+        
         doc.addImage(data, 'PNG', (210 - w) / 2, 10, w, h);
         y = 10 + h + 10;
-    }catch(e){}
+    } catch (e) {
+        console.warn('Erro ao carregar logo:', e);
+    }
 
     // === TÍTULO E DATA ===
-    doc.setTextColor(44,62,80); doc.setFont('helvetica','bold'); doc.setFontSize(18);
-    doc.text('Cobertura de Valores', 105, y, {align: 'center'});
-    doc.setFont('helvetica','normal'); doc.setFontSize(12);
-    doc.text(getFormattedDate(), 105, y + 10, {align: 'center'});
+    doc.setTextColor(44, 62, 80);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(18);
+    doc.text('Cobertura de Valores', 105, y, { align: 'center' });
+    
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(12);
+    doc.text(getFormattedDate(), 105, y + 10, { align: 'center' });
 
     const txt = document.getElementById('presentationText').value || defaultPresentationText;
     const lines = doc.splitTextToSize(txt, 180);
     doc.text(lines, 15, y + 20);
     const tableY = y + 20 + lines.length * 5 + 10;
 
-    // === MONTAGEM DOS DADOS ===
-    const body = Object.keys(selectedExams).map(ex => {
+    // === CÁLCULO DOS CONTADORES E CORES ===
+    let stats = { above: 0, below: 0, equal: 0 };
+    const cellColors = [];
+    const body = [];
+
+    Object.keys(selectedExams).forEach(ex => {
         const d = selectedExams[ex];
-        const p = parseFloat(normalizeDecimalInput(d.proposta)) || 0;
-        const row = [ex, d.material || 'N/A', d.prazo || 'N/A', p ? `R$ ${p.toFixed(2)}` : 'N/A'];
+        const proposta = parseFloat(normalizeDecimalInput(d.proposta)) || 0;
+        const row = [ex, d.material || 'N/A', d.prazo || 'N/A', proposta ? `R$ ${proposta.toFixed(2)}` : 'N/A'];
+        const rowColors = [null, null, null, null];
+
         selectedTables.forEach(t => {
             const v = getEditedValue(t, ex);
             const vv = v != null ? parseFloat(v) : null;
-            row.push(vv != null ? `R$ ${vv.toFixed(2)}` : '—');
-            let diff = '—';
-            if (vv != null && p > 0) {
-                const perc = ((vv - p) / p) * 100;
-                diff = (perc > 0 ? '+' : '') + perc.toFixed(1) + '%';
+            const cellText = vv != null ? `R$ ${vv.toFixed(2)}` : '—';
+            row.push(cellText);
+            let color = null;
+            if (vv !== null && proposta > 0) {
+                if (vv > proposta) {
+                    color = [198, 40, 40]; // Vermelho
+                    stats.above++;
+                } else if (vv < proposta) {
+                    color = [46, 125, 50]; // Verde
+                    stats.below++;
+                } else {
+                    color = [249, 168, 37]; // Amarelo
+                    stats.equal++;
+                }
             }
-            row.push(diff);
+            rowColors.push(color);
         });
-        return row;
+        row.push('');
+        body.push(row);
+        cellColors.push(rowColors);
     });
 
     // === LINHA DE TOTAL ===
-    const totalConcorrente = Object.keys(selectedExams).reduce((s, ex) => 
+    const totalConcorrente = Object.keys(selectedExams).reduce((s, ex) =>
         s + (parseFloat(normalizeDecimalInput(selectedExams[ex].proposta)) || 0), 0);
     const totalRow = ['TOTAL', '', '', `R$ ${totalConcorrente.toFixed(2)}`];
     selectedTables.forEach(t => {
-        const sum = Object.keys(selectedExams).reduce((s, ex) => 
+        const sum = Object.keys(selectedExams).reduce((s, ex) =>
             s + (parseFloat(getEditedValue(t, ex)) || 0), 0);
         totalRow.push(`R$ ${sum.toFixed(2)}`);
-        let diffTotal = '—';
-        if (totalConcorrente > 0) {
-            const avgDiff = ((sum - totalConcorrente) / totalConcorrente) * 100;
-            diffTotal = (avgDiff > 0 ? '+' : '') + avgDiff.toFixed(1) + '%';
-        }
-        totalRow.push(diffTotal);
     });
+    totalRow.push('');
     body.push(totalRow);
+    cellColors.push(Array(totalRow.length).fill(null));
 
     // === CABEÇALHO ===
-    const head = [['Exame','Material Biológico','Prazo','Concorrente']];
-    selectedTables.forEach(t => { head[0].push(t); head[0].push('Diferença'); });
+    const head = [['Exame', 'Material Biológico', 'Prazo', 'Concorrente']];
+    selectedTables.forEach(t => head[0].push(t));
+    head[0].push('');
 
-    // === CONTROLE EXATO DA LARGURA DAS COLUNAS (aqui é onde você muda!) ===
+    // === ESTILOS DAS COLUNAS ===
     const columnStyles = {
-        0: { cellWidth: 60 },   // Exame (mais espaço para o nome)
-        1: { cellWidth: 28 },   // Material
-        2: { cellWidth: 20 },   // Prazo
-        3: { cellWidth: 30 },   // Concorrente
+        0: { cellWidth: 67 },
+        1: { cellWidth: 40 },
+        2: { cellWidth: 20 },
+        3: { cellWidth: 30 },
     };
-
-    // Para cada tabela + diferença (começa na coluna 4)
     let colIndex = 4;
-    selectedTables.forEach((t, i) => {
-        columnStyles[colIndex++] = { cellWidth: 30 };     // Valor da tabela
-        columnStyles[colIndex++] = { cellWidth: 25 };     // Diferença % (18mm = espaço perfeito)
+    selectedTables.forEach(() => {
+        columnStyles[colIndex++] = { cellWidth: 30 };
     });
+    columnStyles[colIndex] = { cellWidth: 0 };
 
+    // === GERAÇÃO DA TABELA COM MARGEM INFERIOR DE 40mm ===
     doc.autoTable({
         startY: tableY,
         head: head,
         body: body,
         theme: 'striped',
-        styles: { fontSize: 8.5, cellPadding: 4, overflow: 'linebreak', valign: 'middle', halign: 'center' },
-        headStyles: { fillColor: [26,43,95], textColor: [255,255,255], fontStyle: 'bold', fontSize: 9.5 },
+        styles: {
+            fontSize: 8.5,
+            cellPadding: 4,
+            overflow: 'linebreak',
+            valign: 'middle',
+            halign: 'center'
+        },
+        headStyles: {
+            fillColor: [26, 43, 95],
+            textColor: [255, 255, 255],
+            fontStyle: 'bold',
+            fontSize: 9.5
+        },
         columnStyles: columnStyles,
-        margin: { left: 10, right: 10 },
-        didParseCell: function(data) {
-            // Colorir as células de diferença
-            if (data.section === 'body' && data.column.index >= 4 && (data.column.index - 3) % 2 === 0) {
-                const text = data.cell.text[0];
-                if (text && text.includes('%')) {
-                    const valor = parseFloat(text);
-                    if (valor > 0) data.cell.styles.textColor = [198, 40, 40];
-                    else if (valor < 0) data.cell.styles.textColor = [46, 125, 50];
-                    else data.cell.styles.textColor = [249, 168, 37];
+        margin: {
+            top: 10,
+            left: 10,
+            right: 10,
+            bottom: 10
+        },
+        didParseCell: function (data) {
+            // Cores nas células de valor
+            if (data.section === 'body' && data.column.index >= 4 && data.column.index < 4 + selectedTables.length) {
+                const rowIdx = data.row.index;
+                const colOffset = data.column.index - 4;
+                const color = cellColors[rowIdx][4 + colOffset];
+                if (color) {
+                    data.cell.styles.textColor = color;
+                    data.cell.styles.fontStyle = 'bold';
                 }
             }
-            // Linha total em negrito e fundo azul
+            // Linha de total
             if (data.row.index === body.length - 1) {
                 data.cell.styles.fontStyle = 'bold';
                 data.cell.styles.fillColor = [26, 43, 95];
@@ -1151,16 +1207,45 @@ Laboratório LAMIC`;
         }
     });
 
-    // === RODAPÉ ===
-    const finalY = doc.lastAutoTable.finalY + 10;
-    const closing = doc.splitTextToSize(closingText, 180);
-    doc.setFontSize(11);
-    doc.text(closing, 15, finalY);
+    // === RESUMO COM CORES ===
+    let finalY = doc.lastAutoTable.finalY + 8;
 
+    // Garantir espaço suficiente na página (297 - 40 = 257mm)
+    if (finalY > 257) {
+        doc.addPage();
+        finalY = 20;
+    }
+
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+
+    const parts = [
+        { text: `${stats.above} acima`, color: [198, 40, 40] },
+        { text: ` • ${stats.below} abaixo`, color: [46, 125, 50] },
+        { text: ` • ${stats.equal} igual(is)`, color: [249, 168, 37] }
+    ];
+
+    let x = 105 - 30;
+    parts.forEach(part => {
+        doc.setTextColor(...part.color);
+        const width = doc.getTextWidth(part.text);
+        doc.text(part.text, x, finalY);
+        x += width;
+    });
+
+    // === RODAPÉ ===
+    const footerY = finalY + 12;
+    const closing = doc.splitTextToSize(closingText, 180);
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(11);
+    doc.text(closing, 15, footerY);
+
+    // === DOWNLOAD ===
     const hoje = new Date();
-    const dataFormatada = `${String(hoje.getDate()).padStart(2,'0')}-${String(hoje.getMonth()+1).padStart(2,'0')}-${hoje.getFullYear()}`;
+    const dataFormatada = `${String(hoje.getDate()).padStart(2, '0')}-${String(hoje.getMonth() + 1).padStart(2, '0')}-${hoje.getFullYear()}`;
     doc.save(`LAMIC - Cobertura de Valores ${dataFormatada}.pdf`);
 
+    // === RESTAURA ÍCONE ===
     document.getElementById('loadingDownloadIcon').style.display = 'none';
     document.getElementById('downloadIcon').style.display = 'block';
 }
