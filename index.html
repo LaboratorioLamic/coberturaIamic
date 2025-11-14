@@ -1211,7 +1211,7 @@ function renderTable(exams){
     let finalY = doc.lastAutoTable.finalY + 8;
 
     // Garantir espaço suficiente na página (297 - 40 = 257mm)
-    if (finalY > 257) {
+    if (finalY > 275) {
         doc.addPage();
         finalY = 20;
     }
