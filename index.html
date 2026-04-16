@@ -395,6 +395,27 @@
             background: var(--primary-dark);
             transform: translateY(-1px);
         }
+        .modal-content button.loading {
+            position: relative;
+            color: transparent;
+        }
+        .modal-content button.loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid #fff;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
         .modal-content-presentation button.cancel {
             background: var(--danger);
             color: #fff;
@@ -702,21 +723,33 @@ Laboratório LAMIC`;
             } catch (e) { return {}; }
         }
 
-        // Buffer de 20 segundos
-        setInterval(async () => {
-            if (document.getElementById('password-modal').style.display === 'none') {
-                const updatedData = await loadFromJsonBin();
-                if (updatedData) {
-                    selectedExams = updatedData.selectedExams || {};
-                    selectedTables = updatedData.selectedTables || [];
-                    editedTableValues = updatedData.editedTableValues || {};
-                    slots = updatedData.slots || [];
-                    renderTableHeader();
-                    renderTable(Object.keys(selectedExams));
-                    if(Object.keys(selectedExams).length) document.getElementById('downloadIcon').style.display = 'block';
-                }
+
+
+        // --- FUNÇÕES DE LOCAL STORAGE ---
+
+        function saveToLocalStorage() {
+            const data = { selectedExams, selectedTables, editedTableValues, slots };
+            localStorage.setItem('tableData', JSON.stringify(data));
+        }
+
+        function loadFromLocalStorage() {
+            try {
+                const data = JSON.parse(localStorage.getItem('tableData') || '{}');
+                return {
+                    selectedExams: data.selectedExams || {},
+                    selectedTables: data.selectedTables || [],
+                    editedTableValues: data.editedTableValues || {},
+                    slots: data.slots || []
+                };
+            } catch (e) {
+                return {
+                    selectedExams: {},
+                    selectedTables: [],
+                    editedTableValues: {},
+                    slots: []
+                };
             }
-        }, 40000);
+        }
 
         // --- FUNÇÕES DE SLOTS ---
 
@@ -868,7 +901,12 @@ Laboratório LAMIC`;
             if(isLocked) return;
             const pwd = document.getElementById('password-input').value.trim();
             if(!pwd) return showWarning('Digite a senha', true);
+            const btn = document.getElementById('password-submit');
+            btn.classList.add('loading');
+            btn.disabled = true;
             const ok = await validatePassword(pwd);
+            btn.classList.remove('loading');
+            btn.disabled = false;
             if(!ok){
                 loginAttempts++;
                 document.getElementById('modal-content').classList.add('error');
@@ -878,6 +916,12 @@ Laboratório LAMIC`;
                 return;
             }
             hideModal(); await loadData();
+        };
+
+        document.getElementById('password-input').onkeydown = (e) => {
+            if (e.key === 'Enter') {
+                document.getElementById('password-submit').click();
+            }
         };
 
         async function loadData(){
@@ -904,7 +948,7 @@ Laboratório LAMIC`;
                 tableNames.add(tab);
             });
 
-            const saved = await loadFromJsonBin();
+            const saved = loadFromLocalStorage();
             selectedExams = saved.selectedExams || {};
             selectedTables = saved.selectedTables || [];
             editedTableValues = saved.editedTableValues || {};
@@ -946,7 +990,7 @@ Laboratório LAMIC`;
                 el.onclick = () => {
                     if(!selectedTables.includes(t)){
                         selectedTables.push(t);
-                        saveToJsonBin();
+                        saveToLocalStorage();
                         renderTableHeader();
                         renderTable(Object.keys(selectedExams));
                     }
@@ -976,7 +1020,7 @@ Laboratório LAMIC`;
                     if(confirm(`Remover a tabela "${tableName}"?`)){
                         selectedTables = selectedTables.filter(t => t !== tableName);
                         delete editedTableValues[tableName];
-                        saveToJsonBin();
+                        saveToLocalStorage();
                         renderTableHeader();
                         renderTable(Object.keys(selectedExams));
                     }
@@ -1065,7 +1109,7 @@ Laboratório LAMIC`;
                 i.onblur = e => {
                     const ex = e.target.dataset.exame;
                     selectedExams[ex].proposta = normalizeDecimalInput(e.target.value);
-                    saveToJsonBin();
+                    saveToLocalStorage();
                     renderTable(Object.keys(selectedExams));
                 };
                 i.onkeydown = e => { if(e.key === 'Enter') i.blur(); };
@@ -1083,7 +1127,7 @@ Laboratório LAMIC`;
                         if (!editedTableValues[table]) editedTableValues[table] = {};
                         editedTableValues[table][exam] = { original: getOriginalValue(table, exam), current: num };
                     }
-                    saveToJsonBin();
+                    saveToLocalStorage();
                     renderTable(Object.keys(selectedExams));
                 };
                 input.onkeydown = e => { if (e.key === 'Enter') input.blur(); };
@@ -1094,7 +1138,7 @@ Laboratório LAMIC`;
                     const table = icon.dataset.table;
                     const exam = icon.dataset.exame;
                     if (editedTableValues[table]?.[exam]) delete editedTableValues[table][exam];
-                    saveToJsonBin();
+                    saveToLocalStorage();
                     renderTable(Object.keys(selectedExams));
                 };
             });
@@ -1104,7 +1148,7 @@ Laboratório LAMIC`;
                     const ex = e.target.dataset.exame;
                     delete selectedExams[ex];
                     selectedTables.forEach(t => { if (editedTableValues[t]?.[ex]) delete editedTableValues[t][ex]; });
-                    saveToJsonBin();
+                    saveToLocalStorage();
                     renderTable(Object.keys(selectedExams));
                     if(!Object.keys(selectedExams).length) document.getElementById('downloadIcon').style.display = 'none';
                 };
@@ -1138,7 +1182,7 @@ Laboratório LAMIC`;
                             }
                         }
                         selectedExams[ex] = {material, prazo, proposta: ''};
-                        saveToJsonBin();
+                        saveToLocalStorage();
                         renderTable(Object.keys(selectedExams));
                         document.getElementById('downloadIcon').style.display = 'block';
                     }
@@ -1258,7 +1302,7 @@ Laboratório LAMIC`;
                     selectedTables = json.selectedTables || [];
                     editedTableValues = json.editedTableValues || {};
                     slots = json.slots || [];
-                    saveToJsonBin();
+                    saveToLocalStorage();
                     renderTableHeader(); renderTable(Object.keys(selectedExams));
                     showWarning('Dados importados!');
                 } catch (err) { showWarning('Erro no arquivo.', true); }
@@ -1269,7 +1313,7 @@ Laboratório LAMIC`;
         document.getElementById('resetBtn').onclick = async () => {
             if(confirm('Limpar tela atual?')){
                 selectedExams = {}; selectedTables = []; editedTableValues = {};
-                await saveToJsonBin();
+                saveToLocalStorage();
                 renderTableHeader(); renderTable([]);
                 document.getElementById('downloadIcon').style.display = 'none';
             }
