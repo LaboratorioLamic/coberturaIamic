@@ -711,16 +711,15 @@ Laboratório LAMIC`;
                     headers: { 'X-Access-Key': accessKey },
                     cache: 'no-store'
                 });
-                if (!r.ok) return {};
+                if (!r.ok) return { status: 'error' };
                 const data = await r.json();
                 const recordStr = JSON.stringify(data.record);
-                
-                // Se o conteúdo for igual ao anterior, não faz nada
-                if (recordStr === lastBinEtag) return null;
-                
+                if (recordStr === lastBinEtag) return { status: 'unchanged' };
                 lastBinEtag = recordStr;
-                return data.record || {};
-            } catch (e) { return {}; }
+                return { status: 'ok', record: data.record || {} };
+            } catch (e) {
+                return { status: 'error' };
+            }
         }
 
 
@@ -775,7 +774,23 @@ Laboratório LAMIC`;
             });
         }
 
-        document.getElementById('openSlotsBtn').onclick = () => {
+        document.getElementById('openSlotsBtn').onclick = async () => {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            const result = await loadFromJsonBin();
+            if (result.status === 'ok') {
+                const data = result.record;
+                selectedExams = data.selectedExams || selectedExams;
+                selectedTables = data.selectedTables || selectedTables;
+                editedTableValues = data.editedTableValues || editedTableValues;
+                slots = data.slots || slots;
+                saveToLocalStorage();
+                renderTableHeader();
+                renderTable(Object.keys(selectedExams));
+                if (Object.keys(selectedExams).length) document.getElementById('downloadIcon').style.display = 'block';
+            } else if (result.status === 'error') {
+                showWarning('Não foi possível carregar os dados do JSONBin.', true);
+            }
+            document.getElementById('loadingOverlay').style.display = 'none';
             renderSlots();
             document.getElementById('slots-modal').style.display = 'flex';
         };
