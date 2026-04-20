@@ -305,6 +305,79 @@
             color: var(--primary);
             animation: spin 1s linear infinite;
         }
+        .loading-bar-container {
+            width: 100%;
+            height: 4px;
+            margin-top: 14px;
+            background: rgba(255,255,255,0.35);
+            border-radius: 999px;
+            box-shadow: inset 0 2px 6px rgba(15,23,42,0.08);
+            overflow: hidden;
+            display: none;
+        }
+        .loading-bar {
+            width: 0%;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, var(--accent), #00d4ff, var(--accent));
+            background-size: 200% 100%;
+            animation: shimmer 2s ease-in-out infinite;
+            box-shadow: 0 0 16px rgba(16,104,192,0.18);
+            transition: width 0.2s ease;
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .loading-overlay-card {
+            width: min(420px, 90%);
+            padding: 28px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.96);
+            box-shadow: 0 24px 60px rgba(0,0,0,0.16);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 18px;
+            text-align: center;
+        }
+        .loading-overlay-text {
+            color: var(--primary);
+            font-size: 1rem;
+            font-weight: 700;
+        }
+        .loading-overlay-progress {
+            width: 100%;
+            height: 10px;
+            background: rgba(16,104,192,0.12);
+            border-radius: 999px;
+            overflow: hidden;
+            position: relative;
+        }
+        .loading-overlay-progress::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, rgba(255,255,255,0.2), rgba(255,255,255,0.45), rgba(255,255,255,0.2));
+            opacity: 0.8;
+            animation: shimmer 2s ease-in-out infinite;
+        }
+        .loading-overlay-progress-bar {
+            position: relative;
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), #00d4ff, var(--primary));
+            border-radius: 999px;
+            transition: width 0.2s ease;
+            z-index: 1;
+        }
+        .loading-overlay-percent {
+            font-size: 1.3rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            color: var(--primary);
+            min-width: 72px;
+        }
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -611,6 +684,9 @@
             </div>
             <input type="password" id="password-input" placeholder="Digite a senha">
             <button id="password-submit">Entrar</button>
+            <div id="loading-bar-container" class="loading-bar-container">
+                <div id="loading-bar" class="loading-bar"></div>
+            </div>
         </div>
     </div>
 
@@ -644,7 +720,16 @@
         <i class="fas fa-spinner loading-download" id="loadingDownloadIcon"></i>
     </div>
 
-    <div class="loading-overlay" id="loadingOverlay"><i class="fas fa-spinner loading-icon"></i></div>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-overlay-card">
+            <i class="fas fa-spinner loading-icon"></i>
+            <div class="loading-overlay-text">Carregando dados da planilha</div>
+            <div class="loading-overlay-progress">
+                <div class="loading-overlay-progress-bar" id="loadingOverlayBar"></div>
+            </div>
+            <div class="loading-overlay-percent" id="loadingPercent">0%</div>
+        </div>
+    </div>
     
     <table id="comparisonTable">
         <thead id="tableHeader"></thead>
@@ -897,6 +982,53 @@ Laboratório LAMIC`;
             }catch(e){ return false; }
         }
 
+        let passwordProgressFrame = null;
+        let passwordProgressStart = null;
+
+        function resetPasswordProgress() {
+            const cont = document.getElementById('loading-bar-container');
+            const bar = document.getElementById('loading-bar');
+            if (passwordProgressFrame) cancelAnimationFrame(passwordProgressFrame);
+            passwordProgressFrame = null;
+            passwordProgressStart = null;
+            bar.style.width = '0%';
+            cont.style.display = 'none';
+        }
+
+        function showPasswordProgress() {
+            const cont = document.getElementById('loading-bar-container');
+            const bar = document.getElementById('loading-bar');
+            cont.style.display = 'block';
+            bar.style.width = '0%';
+            passwordProgressStart = null;
+            function animate(t) {
+                if (!passwordProgressStart) passwordProgressStart = t;
+                const elapsed = t - passwordProgressStart;
+                const linear = Math.min(elapsed / 10000, 1);
+                const drift = (Math.random() - 0.5) * 2 * (1 - linear);
+                const value = Math.min(98, Math.max(0, linear * 98 + drift));
+                bar.style.width = `${value.toFixed(2)}%`;
+                if (elapsed < 10000) {
+                    passwordProgressFrame = requestAnimationFrame(animate);
+                } else {
+                    bar.style.width = '98%';
+                }
+            }
+            passwordProgressFrame = requestAnimationFrame(animate);
+        }
+
+        function completePasswordProgress() {
+            return new Promise(resolve => {
+                if (passwordProgressFrame) cancelAnimationFrame(passwordProgressFrame);
+                const bar = document.getElementById('loading-bar');
+                bar.style.width = '100%';
+                setTimeout(() => {
+                    resetPasswordProgress();
+                    resolve();
+                }, 800);
+            });
+        }
+
         function startLockout(){
             isLocked = true; loginAttempts = 0;
             const msg = document.getElementById('lockout-message');
@@ -912,6 +1044,53 @@ Laboratório LAMIC`;
             }, 10000);
         }
 
+        let loadingPercentFrame = null;
+        let loadingPercentStart = null;
+
+        function resetLoadingPercent() {
+            if (loadingPercentFrame) cancelAnimationFrame(loadingPercentFrame);
+            loadingPercentFrame = null;
+            loadingPercentStart = null;
+            document.getElementById('loadingPercent').textContent = '0%';
+            document.getElementById('loadingOverlayBar').style.width = '0%';
+        }
+
+        function startLoadingPercent() {
+            const bar = document.getElementById('loadingOverlayBar');
+            const percentText = document.getElementById('loadingPercent');
+            const duration = 15000;
+            loadingPercentStart = null;
+            function animate(t) {
+                if (!loadingPercentStart) loadingPercentStart = t;
+                const elapsed = t - loadingPercentStart;
+                const linear = Math.min(elapsed / duration, 1);
+                const drift = (Math.random() - 0.5) * 2 * (1 - linear);
+                const value = Math.min(99, Math.max(0, linear * 99 + drift));
+                bar.style.width = `${value.toFixed(2)}%`;
+                percentText.textContent = `${Math.round(value)}%`;
+                if (elapsed < duration) {
+                    loadingPercentFrame = requestAnimationFrame(animate);
+                } else {
+                    bar.style.width = '99%';
+                    percentText.textContent = '99%';
+                    loadingPercentFrame = requestAnimationFrame(animate);
+                }
+            }
+            loadingPercentFrame = requestAnimationFrame(animate);
+        }
+
+        function completeLoadingPercent() {
+            return new Promise(resolve => {
+                if (loadingPercentFrame) cancelAnimationFrame(loadingPercentFrame);
+                document.getElementById('loadingOverlayBar').style.width = '100%';
+                document.getElementById('loadingPercent').textContent = '100%';
+                setTimeout(() => {
+                    resetLoadingPercent();
+                    resolve();
+                }, 600);
+            });
+        }
+
         document.getElementById('password-submit').onclick = async () => {
             if(isLocked) return;
             const pwd = document.getElementById('password-input').value.trim();
@@ -919,10 +1098,12 @@ Laboratório LAMIC`;
             const btn = document.getElementById('password-submit');
             btn.classList.add('loading');
             btn.disabled = true;
+            showPasswordProgress();
             const ok = await validatePassword(pwd);
             btn.classList.remove('loading');
             btn.disabled = false;
             if(!ok){
+                resetPasswordProgress();
                 loginAttempts++;
                 document.getElementById('modal-content').classList.add('error');
                 showWarning('Senha incorreta', true);
@@ -930,6 +1111,7 @@ Laboratório LAMIC`;
                 if(loginAttempts >= 5) startLockout();
                 return;
             }
+            await completePasswordProgress();
             hideModal(); await loadData();
         };
 
@@ -941,6 +1123,8 @@ Laboratório LAMIC`;
 
         async function loadData(){
             document.getElementById('loadingOverlay').style.display = 'flex';
+            resetLoadingPercent();
+            startLoadingPercent();
             let rows = [];
             try{
                 const r = await fetch(tablesUrl);
@@ -988,6 +1172,7 @@ Laboratório LAMIC`;
             renderTableHeader();
             renderTable(Object.keys(selectedExams));
             populateTableDropdown([...tableNames]);
+            await completeLoadingPercent();
             document.getElementById('loadingOverlay').style.display = 'none';
             if(Object.keys(selectedExams).length) document.getElementById('downloadIcon').style.display = 'block';
         }
